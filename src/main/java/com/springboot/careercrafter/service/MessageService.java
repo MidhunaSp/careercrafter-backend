@@ -29,6 +29,8 @@ public class MessageService {
     private final JobApplicationRepository jobApplicationRepository;
     private final NotificationService notificationService;
 
+    private static final String USER_NOT_FOUND = "User not found";
+
     public CreatedRespDto add(Long senderId, Long receiverId, Long jobApplicationId,
                               MessageReqDto dto, String loggedInUsername) {
 
@@ -82,9 +84,9 @@ public class MessageService {
 
     public List<MessageRespDto> getConversation(Long user1, Long user2, String loggedInUsername) {
         User first = userRepository.findById(user1)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND));
         User second = userRepository.findById(user2)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND));
 
         // the logged-in user must be one of the two people in the chat
         if (!first.getUsername().equals(loggedInUsername) && !second.getUsername().equals(loggedInUsername))
@@ -120,7 +122,7 @@ public class MessageService {
 
     private void checkUser(Long userId, String loggedInUsername) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND));
         if (!user.getUsername().equals(loggedInUsername))
             throw new OwnershipException("You can read only your own messages");
     }
