@@ -193,7 +193,7 @@ class JobApplicationServiceTest {
     }
 
     @Test
-    public void saveTest_NotOwner() {
+    void saveTest_NotOwner() {
         when(jobRepository.findById(1L)).thenReturn(Optional.of(job("techcorp", true)));
         when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(seeker(1L, "john")));
         assertThrows(OwnershipException.class, () -> jobApplicationService.apply(1L, 1L, null, "someoneelse"));
@@ -209,7 +209,7 @@ class JobApplicationServiceTest {
     }
 
     @Test
-    public void saveTest_AlreadyApplied() {
+    void saveTest_AlreadyApplied() {
         when(jobRepository.findById(1L)).thenReturn(Optional.of(job("techcorp", true)));
         when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(seeker(1L, "john")));
         when(jobApplicationRepository.existsByJobIdAndApplicantId(1L, 1L)).thenReturn(true);
@@ -218,7 +218,7 @@ class JobApplicationServiceTest {
     }
 
     @Test
-    public void saveTest_NoDefaultResume() {
+    void saveTest_NoDefaultResume() {
         when(jobRepository.findById(1L)).thenReturn(Optional.of(job("techcorp", true)));
         when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(seeker(1L, "john")));
         when(jobApplicationRepository.existsByJobIdAndApplicantId(1L, 1L)).thenReturn(false);
@@ -228,7 +228,7 @@ class JobApplicationServiceTest {
     }
 
     @Test
-    public void saveTest_ResumeNotFound() {
+    void saveTest_ResumeNotFound() {
         when(jobRepository.findById(1L)).thenReturn(Optional.of(job("techcorp", true)));
         when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(seeker(1L, "john")));
         when(jobApplicationRepository.existsByJobIdAndApplicantId(1L, 1L)).thenReturn(false);
@@ -238,7 +238,7 @@ class JobApplicationServiceTest {
     }
 
     @Test
-    public void saveTest_ResumeOfAnotherApplicant() {
+    void saveTest_ResumeOfAnotherApplicant() {
         Resume resume = new Resume();
         resume.setJobSeeker(seeker(2L, "mary")); // belongs to job seeker 2
 
@@ -251,7 +251,7 @@ class JobApplicationServiceTest {
     }
 
     @Test
-    public void saveTest_WithResumeId() {
+    void saveTest_WithResumeId() {
         Resume resume = new Resume();
         resume.setJobSeeker(seeker(1L, "john"));
         JobApplication saved = new JobApplication();
@@ -272,7 +272,7 @@ class JobApplicationServiceTest {
 
     // ---- getByApplicantId : not owner ----
     @Test
-    public void getByApplicantIdTest_NotOwner() {
+    void getByApplicantIdTest_NotOwner() {
         when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(seeker(1L, "john")));
         assertThrows(OwnershipException.class,
                 () -> jobApplicationService.getByApplicantId(1L, 0, 5, "someoneelse"));
@@ -281,7 +281,7 @@ class JobApplicationServiceTest {
 
     // ---- getByJobId ----
     @Test
-    public void getByJobIdTest() {
+    void getByJobIdTest() {
         JobApplication a1 = new JobApplication();
         JobApplication a2 = new JobApplication();
         JobApplicationRespDto dto = new JobApplicationRespDto(1L, ApplicationStatus.APPLIED, Instant.now(), Instant.now(), 1L, "Java Developer", "TCS", 1L, "john", null);
@@ -299,7 +299,7 @@ class JobApplicationServiceTest {
     }
 
     @Test
-    public void getByJobIdTest_NotFound() {
+    void getByJobIdTest_NotFound() {
         when(jobRepository.findById(1L)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class,
                 () -> jobApplicationService.getByJobId(1L, null, 0, 5, "techcorp"));
@@ -316,7 +316,7 @@ class JobApplicationServiceTest {
     }
 
     @Test
-    public void getByIdTest() {
+    void getByIdTest() {
         JobApplication ja = applicationOf("john", "techcorp");
         JobApplicationRespDto dto = new JobApplicationRespDto(1L, ApplicationStatus.APPLIED, Instant.now(), Instant.now(), 1L, "Java Developer", "TCS", 1L, "john", null);
 
@@ -330,7 +330,7 @@ class JobApplicationServiceTest {
 
     // ---- withdraw ----
     @Test
-    public void withdrawTest() {
+     void withdrawTest() {
         JobApplication ja = applicationOf("john", "techcorp");
         when(jobApplicationRepository.findById(1L)).thenReturn(Optional.of(ja));
 

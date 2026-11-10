@@ -97,8 +97,8 @@ class JobSeekerServiceTest {
         JobSeeker js2 = new JobSeeker();
         js2.setId(2L);
 
-        JobSeekerRespDto dto1 = new JobSeekerRespDto(1L, 1L, "John Doe", "9876543210", "Chennai", "BE", "2 years", "Java", "john",true);
-        JobSeekerRespDto dto2 = new JobSeekerRespDto(2L, 2L, "Mary Ann", "9876543211", "Pune", "BSc", "1 year", "Python", "mary",true);
+        JobSeekerRespDto dto1 = new JobSeekerRespDto(1L, 1L, "John Doe", "9876543210", "Chennai", "BE", "2 years", "Java", "john", true);
+        JobSeekerRespDto dto2 = new JobSeekerRespDto(2L, 2L, "Mary Ann", "9876543211", "Pune", "BSc", "1 year", "Python", "mary", true);
 
         when(jobSeekerRepository.findAll()).thenReturn(List.of(js1, js2));
         when(jobSeekerMapper.mapEntityToDto(js1)).thenReturn(dto1);
@@ -116,7 +116,7 @@ class JobSeekerServiceTest {
     void getByIdTest() {
         JobSeeker js = new JobSeeker();
         js.setId(1L);
-        JobSeekerRespDto dto = new JobSeekerRespDto(1L, 1L, "John Doe", "9876543210", "Chennai", "BE", "2 years", "Java", "john",true);
+        JobSeekerRespDto dto = new JobSeekerRespDto(1L, 1L, "John Doe", "9876543210", "Chennai", "BE", "2 years", "Java", "john", true);
 
         when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(js));
         when(jobSeekerMapper.mapEntityToDto(js)).thenReturn(dto);
@@ -145,7 +145,7 @@ class JobSeekerServiceTest {
     void getByUsernameTest() {
         JobSeeker js = new JobSeeker();
         js.setId(1L);
-        JobSeekerRespDto dto = new JobSeekerRespDto(1L, 1L, "John Doe", "9876543210", "Chennai", "BE", "2 years", "Java", "john",true);
+        JobSeekerRespDto dto = new JobSeekerRespDto(1L, 1L, "John Doe", "9876543210", "Chennai", "BE", "2 years", "Java", "john", true);
 
         when(jobSeekerRepository.findByUserUsername("john")).thenReturn(Optional.of(js));
         when(jobSeekerMapper.mapEntityToDto(js)).thenReturn(dto);

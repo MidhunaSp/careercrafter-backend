@@ -38,6 +38,8 @@ class JobServiceTest {
     @InjectMocks
     private JobService jobService; // real service, mocks below are injected into it
     @Mock
+    private JobMatchService jobMatchService;
+    @Mock
     private JobRepository jobRepository;
     @Mock
     private EmployerRepository employerRepository;
@@ -74,6 +76,7 @@ class JobServiceTest {
 
         verify(employerRepository, times(1)).findById(1L);
         verify(jobRepository, times(1)).save(any(Job.class));
+        verify(jobMatchService, times(1)).notifyMatchingSeekers(any(Job.class));
     }
 
     // ---- add : employer not found ----
@@ -88,6 +91,7 @@ class JobServiceTest {
 
         verify(employerRepository, times(1)).findById(99L);
         verify(jobRepository, times(0)).save(any(Job.class));
+
     }
 
     // ---- add : employer not verified ----

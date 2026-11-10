@@ -125,7 +125,7 @@ class SavedJobServiceTest {
     }
 
     @Test
-    public void getByJobSeekerIdTest_NotOwner() {
+    void getByJobSeekerIdTest_NotOwner() {
         when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(jobSeeker("john")));
         assertThrows(OwnershipException.class, () -> savedJobService.getByJobSeekerId(1L, 0, 5, "someoneelse"));
         verifyNoInteractions(savedJobRepository);
@@ -133,7 +133,7 @@ class SavedJobServiceTest {
 
     // ---- deleteById ----
     @Test
-    public void deleteByIdTest() {
+    void deleteByIdTest() {
         SavedJob savedJob = new SavedJob();
         savedJob.setJobSeeker(jobSeeker("john"));
         when(savedJobRepository.findById(1L)).thenReturn(Optional.of(savedJob));
@@ -144,7 +144,7 @@ class SavedJobServiceTest {
     }
 
     @Test
-    public void deleteByIdTest_NotOwner() {
+    void deleteByIdTest_NotOwner() {
         SavedJob savedJob = new SavedJob();
         savedJob.setJobSeeker(jobSeeker("john"));
         when(savedJobRepository.findById(1L)).thenReturn(Optional.of(savedJob));

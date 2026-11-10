@@ -27,11 +27,13 @@ class StatsServiceTest {
     private JobRepository jobRepository;
     @Mock
     private JobApplicationRepository jobApplicationRepository;
+    @Mock
+    private JobMatchService jobMatchService;
 
     @Test
     void getApplicantCountPerJobTest() {
-        JobApplicantCountDto dto1 = new JobApplicantCountDto("Java Developer", 5L);
-        JobApplicantCountDto dto2 = new JobApplicantCountDto("Tester", 3L);
+        JobApplicantCountDto dto1 = new JobApplicantCountDto(1L, "Java Developer", 5L);
+        JobApplicantCountDto dto2 = new JobApplicantCountDto(2L, "Tester", 3L);
 
         when(jobRepository.getApplicantCountPerJob()).thenReturn(List.of(dto1, dto2));
 

@@ -146,7 +146,7 @@ class MessageServiceTest {
     }
 
     @Test
-    public void getSentTest_NotOwner() {
+    void getSentTest_NotOwner() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user("john")));
         assertThrows(OwnershipException.class, () -> messageService.getSent(1L, "someoneelse"));
         verifyNoInteractions(messageRepository);
@@ -154,7 +154,7 @@ class MessageServiceTest {
 
     // ---- getConversation ----
     @Test
-    public void getConversationTest() {
+    void getConversationTest() {
         MessageRespDto dto = new MessageRespDto(1L, 1L, "john", 2L, "mary", "Hi", false, Instant.now(), null);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user("john")));
         when(userRepository.findById(2L)).thenReturn(Optional.of(user("mary")));
@@ -164,21 +164,21 @@ class MessageServiceTest {
     }
 
     @Test
-    public void getConversationTest_UserNotFound() {
+    void getConversationTest_UserNotFound() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, () -> messageService.getConversation(1L, 2L, "john"));
         verifyNoInteractions(messageRepository);
     }
 
     @Test
-    public void markReadTest_NotFound() {
+    void markReadTest_NotFound() {
         when(messageRepository.findById(1L)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, () -> messageService.markRead(1L, "mary"));
         verify(messageRepository, times(0)).save(any(Message.class));
     }
 
     @Test
-    public void markReadTest_NotReceiver() {
+    void markReadTest_NotReceiver() {
         Message m = message(user("john"), user("mary"));
         when(messageRepository.findById(1L)).thenReturn(Optional.of(m));
         assertThrows(OwnershipException.class, () -> messageService.markRead(1L, "john")); // sender cannot mark read
@@ -187,7 +187,7 @@ class MessageServiceTest {
 
     // ---- deleteById ----
     @Test
-    public void deleteByIdTest() {
+    void deleteByIdTest() {
         Message m = message(user("john"), user("mary"));
         when(messageRepository.findById(1L)).thenReturn(Optional.of(m));
 
@@ -197,7 +197,7 @@ class MessageServiceTest {
     }
 
     @Test
-    public void deleteByIdTest_NotFound() {
+    void deleteByIdTest_NotFound() {
         when(messageRepository.findById(1L)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, () -> messageService.deleteById(1L, "john"));
         verify(messageRepository, times(0)).delete(any(Message.class));
