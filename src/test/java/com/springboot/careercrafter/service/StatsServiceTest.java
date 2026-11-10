@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class StatsServiceTest {
+class StatsServiceTest {
 
     @InjectMocks
     private StatsService statsService; // real service, mocks below are injected into it

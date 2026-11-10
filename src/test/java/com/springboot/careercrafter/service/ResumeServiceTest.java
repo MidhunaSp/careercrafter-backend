@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class ResumeServiceTest {
+class ResumeServiceTest {
 
     @InjectMocks
     private ResumeService resumeService; // real service, mocks below are injected into it

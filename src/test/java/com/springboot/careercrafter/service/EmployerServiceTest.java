@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
-public class EmployerServiceTest {
+class EmployerServiceTest {
 
     @InjectMocks
     private EmployerService employerService;

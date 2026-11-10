@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class JobServiceTest {
+class JobServiceTest {
 
     @InjectMocks
     private JobService jobService; // real service, mocks below are injected into it
