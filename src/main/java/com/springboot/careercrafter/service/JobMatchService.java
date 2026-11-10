@@ -19,7 +19,7 @@ public class JobMatchService {
     private final JobSeekerRepository jobSeekerRepository;
     private final NotificationService notificationService;
 
-    // tells every active job seeker whose skills appear in the new job
+    // tells every active jobseeker whose skills appear in the new job
     public void notifyMatchingSeekers(Job job) {
         try {
             String text = ((job.getTitle() == null ? "" : job.getTitle()) + " "
@@ -28,16 +28,7 @@ public class JobMatchService {
 
             int notified = 0;
             for (JobSeeker js : jobSeekerRepository.findAll()) {
-                if (!js.getUser().isActive() || js.getSkills() == null || js.getSkills().isBlank())
-                    continue;
-
-                List<String> matched = Arrays.stream(js.getSkills().split(","))
-                        .map(String::trim)
-                        .map(String::toLowerCase)
-                        .filter(s -> !s.isEmpty())
-                        .filter(text::contains)
-                        .toList();
-
+                List<String> matched = matchedSkills(js, text);
                 if (matched.isEmpty())
                     continue;
 
@@ -53,5 +44,17 @@ public class JobMatchService {
             // posting the job must never fail because of an alert
             log.warn("Could not send job match alerts for jobId={}: {}", job.getId(), e.getMessage());
         }
+    }
+
+    // skills of the jobseeker that appear in the job text (empty list for inactive users or users without skills)
+    private List<String> matchedSkills(JobSeeker js, String text) {
+        if (!js.getUser().isActive() || js.getSkills() == null || js.getSkills().isBlank())
+            return List.of();
+        return Arrays.stream(js.getSkills().split(","))
+                .map(String::trim)
+                .map(String::toLowerCase)
+                .filter(s -> !s.isEmpty())
+                .filter(text::contains)
+                .toList();
     }
 }
