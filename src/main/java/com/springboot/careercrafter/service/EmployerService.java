@@ -36,6 +36,8 @@ public class EmployerService {
     private final UserRepository userRepository;
     private final UserService userService;
 
+    private static final String EMPLOYER_NOT_FOUND = "Employer not found";
+
     public CreatedRespDto add(@Valid EmployerReqDto employerReqDto) {
         // step 1: prepare user object and save it in db
         User user = userService.createUser(employerReqDto.username(),employerReqDto.password(),Role.EMPLOYER);
@@ -58,7 +60,7 @@ public class EmployerService {
     public EmployerRespDto getById(long employerId) {
         // step 1: fetch employer from db using employerid, throw exception if not found
         Employer employer = employerRepository.findById(employerId)
-                .orElseThrow(()-> new ResourceNotFoundException("Employer not found"));
+                .orElseThrow(()-> new ResourceNotFoundException(EMPLOYER_NOT_FOUND));
 
         // step 2: map employer entity to employerrespdto and return
         return employerMapper.mapEntityToDto(employer);
@@ -99,7 +101,7 @@ public class EmployerService {
 
     public void update(Long id, EmployerUpdateDto dto, String loggedInUsername) {
         Employer employer = employerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Employer not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(EMPLOYER_NOT_FOUND));
 
         // check that the logged-in user owns this employer account
         if (!employer.getUser().getUsername().equals(loggedInUsername))
@@ -129,7 +131,7 @@ public class EmployerService {
     @Transactional
     public void deleteById(Long id, String loggedInUsername) {
         Employer employer = employerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Employer not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(EMPLOYER_NOT_FOUND));
 
         // check that the logged-in user owns this employer account
         if (!employer.getUser().getUsername().equals(loggedInUsername))

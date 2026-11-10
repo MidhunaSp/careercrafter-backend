@@ -47,7 +47,6 @@ public class ApplicationStatusHistoryService {
             throw new InvalidCallException("Application is already in status " + dto.status());
 
         // step 4: keep job_applications.status in sync with the latest history entry
-        ApplicationStatus oldStatus = application.getStatus();
         application.setStatus(dto.status());
         jobApplicationRepository.save(application);
 
@@ -94,9 +93,4 @@ public class ApplicationStatusHistoryService {
         }
         return result;
     }
-
-
-//    public void delete(Long jobApplicationId) {
-//        historyRepository.deleteById(jobApplicationId);
-//    }
 }

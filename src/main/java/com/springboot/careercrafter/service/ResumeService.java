@@ -40,6 +40,8 @@ public class ResumeService {
     private final ResumeMapper resumeMapper;
     private final JobApplicationRepository jobApplicationRepository;
 
+    private static final String RESUME_NOT_FOUND = "Resume not found";
+
     @Value("${app.upload.resume-dir}")
     private String uploadDir;
 
@@ -64,7 +66,7 @@ public class ResumeService {
             resumeRepository.saveAll(existing);
         }
 
-        // step 5: map dto to entity, attach job seeker and save
+        // step 5: map dto to entity, attach jobseeker and save
         Resume resume = resumeMapper.mapDtoToEntity(dto);
         resume.setJobSeeker(jobSeeker);
         resume.setDefault(makeDefault);
@@ -126,7 +128,7 @@ public class ResumeService {
 
     public ResumeRespDto getById(Long id, String loggedInUsername) {
         Resume resume = resumeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Resume not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(RESUME_NOT_FOUND));
         checkOwner(resume, loggedInUsername);
         return resumeMapper.mapEntityToDto(resume);
     }
@@ -134,7 +136,7 @@ public class ResumeService {
     @Transactional
     public void makeDefault(Long id, String loggedInUsername) {
         Resume resume = resumeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Resume not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(RESUME_NOT_FOUND));
         checkOwner(resume, loggedInUsername);
 
         // exactly one default per jobseeker: this one true, all others false
@@ -177,7 +179,7 @@ public class ResumeService {
 
     public void update(Long id, ResumeReqDto dto, String loggedInUsername) {
         Resume resume = resumeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Resume not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(RESUME_NOT_FOUND));
         checkOwner(resume, loggedInUsername);
 
         resume.setFileName(dto.fileName());
@@ -200,7 +202,7 @@ public class ResumeService {
     // the jobseeker opens the pdf of his own resume
     public ResumeFileRespDto getFile(Long id, String loggedInUsername) throws IOException {
         Resume resume = resumeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Resume not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(RESUME_NOT_FOUND));
         checkOwner(resume, loggedInUsername);
         return readFile(resume);
     }
@@ -238,7 +240,7 @@ public class ResumeService {
     @Transactional
     public void setShared(Long id, boolean shared, String loggedInUsername) {
         Resume resume = resumeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Resume not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(RESUME_NOT_FOUND));
         checkOwner(resume, loggedInUsername);
         resume.setShared(shared);
         resumeRepository.save(resume);
@@ -255,7 +257,7 @@ public class ResumeService {
     // employer opens a shared pdf; a private resume is refused
     public ResumeFileRespDto getSharedFile(Long id) throws IOException {
         Resume resume = resumeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Resume not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(RESUME_NOT_FOUND));
         if (!resume.isShared())
             throw new OwnershipException("This resume is not shared with employers");
         return readFile(resume);

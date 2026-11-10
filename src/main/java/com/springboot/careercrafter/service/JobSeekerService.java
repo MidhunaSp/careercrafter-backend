@@ -34,6 +34,7 @@ public class JobSeekerService {
     private final UserRepository userRepository;
     private final JobSeekerMapper jobSeekerMapper;
     private final UserService userService;
+    private static final String JOBSEEKER_NOT_FOUND = "Job seeker not found";
 
     public CreatedRespDto add(@Valid JobSeekerReqDto jobSeekerReqDto) {
         User user = userService.createUser(jobSeekerReqDto.username(),jobSeekerReqDto.password(),Role.JOB_SEEKER);
@@ -53,7 +54,7 @@ public class JobSeekerService {
 
     public JobSeekerRespDto getById(Long id) {
         JobSeeker js = jobSeekerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Job seeker not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(JOBSEEKER_NOT_FOUND));
         return jobSeekerMapper.mapEntityToDto(js);
     }
 
@@ -79,9 +80,9 @@ public class JobSeekerService {
 
     public void update(Long id, JobSeekerUpdateDto dto, String loggedInUsername) {
         JobSeeker js = jobSeekerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Job seeker not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(JOBSEEKER_NOT_FOUND));
 
-        // check that the logged-in user owns this job seeker account
+        // check that the logged-in user owns this jobseeker account
         if (!js.getUser().getUsername().equals(loggedInUsername))
             throw new OwnershipException("You can update only your own job seeker account");
 
@@ -103,9 +104,9 @@ public class JobSeekerService {
     @Transactional
     public void deleteById(Long id, String loggedInUsername) {
         JobSeeker js = jobSeekerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Job seeker not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(JOBSEEKER_NOT_FOUND));
 
-        // check that the logged-in user owns this job seeker account
+        // check that the logged-in user owns this jobseeker account
         if (!js.getUser().getUsername().equals(loggedInUsername))
             throw new OwnershipException("You can delete only your own job seeker account");
 

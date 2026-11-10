@@ -37,6 +37,9 @@ public class JobService {
     private final JobApplicationRepository jobApplicationRepository;
     private final JobMatchService jobMatchService;
 
+    private static final String EMPLOYER_NOT_FOUND = "Employer not found";
+    private static final String JOB_NOT_FOUND = "Job not found";
+
     public CreatedRespDto add(Long employerId, JobReqDto dto, String loggedInUsername) {
         // step 1: fetch employer from db using employerid
         Employer employer = employerRepository.findById(employerId)
@@ -74,7 +77,7 @@ public class JobService {
     public JobRespDto getById(Long id) {
         // step 1: fetch job details from db using id, throw exception if not found
         return jobRepository.getJobDetailsById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(JOB_NOT_FOUND));
     }
 
     public PagedRespDto<JobRespDto> filter(String location, String industry, EmploymentType employmentType,
@@ -98,7 +101,7 @@ public class JobService {
     public PagedRespDto<JobRespDto> getByEmployerId(Long employerId, int page, int size) {
         // step 1: check that the employer exists, throw exception if not
         if (!employerRepository.existsById(employerId))
-            throw new ResourceNotFoundException("Employer not found");
+            throw new ResourceNotFoundException(EMPLOYER_NOT_FOUND);
 
         // step 2: fetch the jobs posted by this employer (paginated) and return
         return PagedRespDto.of(jobRepository.getJobsByEmployerId(employerId, PageRequest.of(page, size)));
@@ -107,7 +110,7 @@ public class JobService {
     public void update(Long id, JobReqDto dto, String loggedInUsername) {
         // step 1: fetch job from db using id, throw exception if not found
         Job job = jobRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(JOB_NOT_FOUND));
 
         // step 2: check that the logged-in user is the owner of this job
         checkOwner(job, loggedInUsername);
@@ -125,7 +128,7 @@ public class JobService {
     public void close(Long id, String loggedInUsername) {
         // step 1: fetch job from db using id, throw exception if not found
         Job job = jobRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(JOB_NOT_FOUND));
 
         // step 2: check that the logged-in user is the owner of this job
         checkOwner(job, loggedInUsername);
@@ -154,7 +157,7 @@ public class JobService {
     public void deleteById(Long id, String loggedInUsername) {
         // step 1: fetch job from db using id, throw exception if not found
         Job job = jobRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(JOB_NOT_FOUND));
 
         // step 2: check that the logged-in user is the owner of this job
         checkOwner(job, loggedInUsername);
@@ -174,7 +177,7 @@ public class JobService {
     public void reopen(Long id, String loggedInUsername) {
         // step 1: fetch job from db using id, throw exception if not found
         Job job = jobRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(JOB_NOT_FOUND));
 
         // step 2: check that the logged-in user is the owner of this job
         checkOwner(job, loggedInUsername);

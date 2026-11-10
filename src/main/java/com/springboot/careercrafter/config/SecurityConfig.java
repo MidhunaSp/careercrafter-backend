@@ -22,6 +22,10 @@ public class SecurityConfig {
     private final MyUserDetailsService myUserDetailsService;
     private final JwtFilter jwtFilter;
 
+    public static final String EMPLOYER = "EMPLOYER";
+    private static final String JOB_SEEKER = "JOB_SEEKER";
+    private static final String ADMIN = "ADMIN";
+
     @Bean
     public SecurityFilterChain defaultFilterChain(HttpSecurity http) throws Exception {
         http
@@ -43,49 +47,49 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/job/all", "/api/job/filter", "/api/job/{id}").permitAll()
 
                         // EMPLOYER stats
-                        .requestMatchers(HttpMethod.GET, "/api/stats/employer/**").hasAuthority("EMPLOYER")
+                        .requestMatchers(HttpMethod.GET, "/api/stats/employer/**").hasAuthority(EMPLOYER)
 
                         // ADMIN
-                        .requestMatchers(HttpMethod.PUT, "/api/employer/verify/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/stats/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/employer/verify/**").hasAuthority(ADMIN)
+                        .requestMatchers(HttpMethod.GET, "/api/stats/**").hasAuthority(ADMIN)
                         .requestMatchers(HttpMethod.GET, "/api/employer/all", "/api/employer/filter",
-                                "/api/employer/by-verification", "/api/jobseeker/all").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/notification/add/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/admin/by-username").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/admin/user-status", "/api/admin/job/**").hasAuthority("ADMIN")
+                                "/api/employer/by-verification", "/api/jobseeker/all").hasAuthority(ADMIN)
+                        .requestMatchers(HttpMethod.POST, "/api/notification/add/**").hasAuthority(ADMIN)
+                        .requestMatchers(HttpMethod.GET, "/api/admin/by-username").hasAuthority(ADMIN)
+                        .requestMatchers(HttpMethod.PUT, "/api/admin/user-status", "/api/admin/job/**").hasAuthority(ADMIN)
 
                         // ADMIN OR EMPLOYER (employer searches the candidates)
-                        .requestMatchers(HttpMethod.GET, "/api/jobseeker/filter").hasAnyAuthority("ADMIN", "EMPLOYER")
+                        .requestMatchers(HttpMethod.GET, "/api/jobseeker/filter").hasAnyAuthority(ADMIN, EMPLOYER)
 
                         // EMPLOYER
-                        .requestMatchers(HttpMethod.POST, "/api/job/add/**").hasAuthority("EMPLOYER")
-                        .requestMatchers(HttpMethod.POST, "/api/job/*/jd").hasAuthority("EMPLOYER")
-                        .requestMatchers(HttpMethod.GET, "/api/job/employer/**").hasAuthority("EMPLOYER")
-                        .requestMatchers(HttpMethod.PUT, "/api/job/**").hasAuthority("EMPLOYER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/job/**").hasAuthority("EMPLOYER")
-                        .requestMatchers(HttpMethod.GET, "/api/jobApplication/job/**").hasAuthority("EMPLOYER")
-                        .requestMatchers(HttpMethod.POST, "/api/applicationStatusHistory/add/**").hasAuthority("EMPLOYER")
-                        .requestMatchers(HttpMethod.GET, "/api/applicationStatusHistory/employer/**").hasAuthority("EMPLOYER")
-                        .requestMatchers(HttpMethod.PUT, "/api/employer/{id}").hasAuthority("EMPLOYER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/employer/{id}").hasAuthority("EMPLOYER")
+                        .requestMatchers(HttpMethod.POST, "/api/job/add/**").hasAuthority(EMPLOYER)
+                        .requestMatchers(HttpMethod.POST, "/api/job/*/jd").hasAuthority(EMPLOYER)
+                        .requestMatchers(HttpMethod.GET, "/api/job/employer/**").hasAuthority(EMPLOYER)
+                        .requestMatchers(HttpMethod.PUT, "/api/job/**").hasAuthority(EMPLOYER)
+                        .requestMatchers(HttpMethod.DELETE, "/api/job/**").hasAuthority(EMPLOYER)
+                        .requestMatchers(HttpMethod.GET, "/api/jobApplication/job/**").hasAuthority(EMPLOYER)
+                        .requestMatchers(HttpMethod.POST, "/api/applicationStatusHistory/add/**").hasAuthority(EMPLOYER)
+                        .requestMatchers(HttpMethod.GET, "/api/applicationStatusHistory/employer/**").hasAuthority(EMPLOYER)
+                        .requestMatchers(HttpMethod.PUT, "/api/employer/{id}").hasAuthority(EMPLOYER)
+                        .requestMatchers(HttpMethod.DELETE, "/api/employer/{id}").hasAuthority(EMPLOYER)
                         // employer views the applicant's resume
-                        .requestMatchers(HttpMethod.GET, "/api/resume/application/**").hasAuthority("EMPLOYER")
-                        .requestMatchers(HttpMethod.GET, "/api/resume/shared/**").hasAuthority("EMPLOYER")
+                        .requestMatchers(HttpMethod.GET, "/api/resume/application/**").hasAuthority(EMPLOYER)
+                        .requestMatchers(HttpMethod.GET, "/api/resume/shared/**").hasAuthority(EMPLOYER)
 
                         // JOB_SEEKER
-                        .requestMatchers(HttpMethod.POST, "/api/jobApplication/add/**").hasAuthority("JOB_SEEKER")
-                        .requestMatchers(HttpMethod.GET, "/api/jobApplication/applicant/**").hasAuthority("JOB_SEEKER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/jobApplication/**").hasAuthority("JOB_SEEKER")
-                        .requestMatchers("/api/resume/**").hasAuthority("JOB_SEEKER")
-                        .requestMatchers("/api/savedJob/**").hasAuthority("JOB_SEEKER")
-                        .requestMatchers(HttpMethod.PUT, "/api/jobseeker/{id}").hasAuthority("JOB_SEEKER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/jobseeker/{id}").hasAuthority("JOB_SEEKER")
-                        .requestMatchers(HttpMethod.GET, "/api/job/recommended/**").hasAuthority("JOB_SEEKER")
+                        .requestMatchers(HttpMethod.POST, "/api/jobApplication/add/**").hasAuthority(JOB_SEEKER)
+                        .requestMatchers(HttpMethod.GET, "/api/jobApplication/applicant/**").hasAuthority(JOB_SEEKER)
+                        .requestMatchers(HttpMethod.DELETE, "/api/jobApplication/**").hasAuthority(JOB_SEEKER)
+                        .requestMatchers("/api/resume/**").hasAuthority(JOB_SEEKER)
+                        .requestMatchers("/api/savedJob/**").hasAuthority(JOB_SEEKER)
+                        .requestMatchers(HttpMethod.PUT, "/api/jobseeker/{id}").hasAuthority(JOB_SEEKER)
+                        .requestMatchers(HttpMethod.DELETE, "/api/jobseeker/{id}").hasAuthority(JOB_SEEKER)
+                        .requestMatchers(HttpMethod.GET, "/api/job/recommended/**").hasAuthority(JOB_SEEKER)
 
                         // JOB_SEEKER or EMPLOYER
-                        .requestMatchers(HttpMethod.GET, "/api/jobApplication/{id}").hasAnyAuthority("JOB_SEEKER", "EMPLOYER")
-                        .requestMatchers(HttpMethod.GET, "/api/applicationStatusHistory/**").hasAnyAuthority("JOB_SEEKER", "EMPLOYER")
-                        .requestMatchers("/api/message/**").hasAnyAuthority("JOB_SEEKER", "EMPLOYER")
+                        .requestMatchers(HttpMethod.GET, "/api/jobApplication/{id}").hasAnyAuthority(JOB_SEEKER, EMPLOYER)
+                        .requestMatchers(HttpMethod.GET, "/api/applicationStatusHistory/**").hasAnyAuthority(JOB_SEEKER, EMPLOYER)
+                        .requestMatchers("/api/message/**").hasAnyAuthority(JOB_SEEKER, EMPLOYER)
 
                         // everything else (notifications, get employer / jobseeker...) needs a login
                         .anyRequest().authenticated()

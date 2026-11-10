@@ -138,15 +138,6 @@ public class EmployerServiceTest {
         assertThrows(ResourceNotFoundException.class, () -> employerService.getByUsername("nobody"));
     }
 
-    private Employer employer(String username) {
-        User user = new User();
-        user.setUsername(username);
-        Employer e = new Employer();
-        e.setId(1L);
-        e.setUser(user);
-        return e;
-    }
-
     // ---- getAll ----
     @Test
     public void getAllTest() {
