@@ -201,7 +201,7 @@ class JobApplicationServiceTest {
     }
 
     @Test
-    public void saveTest_JobNotActive() {
+    void saveTest_JobNotActive() {
         when(jobRepository.findById(1L)).thenReturn(Optional.of(job("techcorp", false)));
         when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(seeker(1L, "john")));
         assertThrows(InvalidCallException.class, () -> jobApplicationService.apply(1L, 1L, null, "john"));
