@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Slf4j
 @RestController
@@ -40,7 +41,7 @@ public class AuthController {
         log.info("User logged in: {}", loggedInUsername);
         return new TokenDto(token,
                 jwtUtility.extractExpiration(token),
-                LocalDateTime.now().toString());
+                LocalDateTime.now(ZoneId.systemDefault()).toString());
     }
 
     @GetMapping("/api/auth/user-details")

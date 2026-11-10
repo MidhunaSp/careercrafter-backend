@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Getter
@@ -41,6 +42,6 @@ public class Resume {
 
     @PrePersist
     void onCreate() {
-        uploadedAt = LocalDateTime.now();
+        uploadedAt = LocalDateTime.now(ZoneId.systemDefault());
     }
 }
