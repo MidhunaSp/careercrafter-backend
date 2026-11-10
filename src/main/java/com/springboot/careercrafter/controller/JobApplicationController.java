@@ -1,5 +1,6 @@
 package com.springboot.careercrafter.controller;
 
+import com.springboot.careercrafter.dto.response.PagedRespDto;
 import com.springboot.careercrafter.dto.response.CreatedRespDto;
 import com.springboot.careercrafter.dto.response.JobApplicationRespDto;
 import com.springboot.careercrafter.enums.ApplicationStatus;
@@ -29,19 +30,19 @@ public class JobApplicationController {
     }
 
     @GetMapping("/api/jobApplication/applicant/{jobSeekerId}")
-    public List<JobApplicationRespDto> getByApplicantId(@PathVariable Long jobSeekerId,
-                                                        @RequestParam(defaultValue = "0") int page,
-                                                        @RequestParam(defaultValue = "10") int size,
-                                                        Principal principal) {
+    public PagedRespDto<JobApplicationRespDto> getByApplicantId(@PathVariable Long jobSeekerId,
+                                                                @RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam(defaultValue = "10") int size,
+                                                                Principal principal) {
         return jobApplicationService.getByApplicantId(jobSeekerId, page, size, principal.getName());
     }
 
     @GetMapping("/api/jobApplication/job/{jobId}")
-    public List<JobApplicationRespDto> getByJobId(@PathVariable Long jobId,
-                                                  @RequestParam(value = "status", required = false) ApplicationStatus status,
-                                                  @RequestParam(defaultValue = "0") int page,
-                                                  @RequestParam(defaultValue = "10") int size,
-                                                  Principal principal) {
+    public PagedRespDto<JobApplicationRespDto> getByJobId(@PathVariable Long jobId,
+                                                          @RequestParam(value = "status", required = false) ApplicationStatus status,
+                                                          @RequestParam(defaultValue = "0") int page,
+                                                          @RequestParam(defaultValue = "10") int size,
+                                                          Principal principal) {
         return jobApplicationService.getByJobId(jobId, status, page, size, principal.getName());
     }
 

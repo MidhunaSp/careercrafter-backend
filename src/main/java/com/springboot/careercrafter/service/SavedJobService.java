@@ -1,5 +1,7 @@
 package com.springboot.careercrafter.service;
 
+import org.springframework.data.domain.PageRequest;
+import com.springboot.careercrafter.dto.response.PagedRespDto;
 import com.springboot.careercrafter.dto.response.CreatedRespDto;
 import com.springboot.careercrafter.dto.response.SavedJobRespDto;
 import com.springboot.careercrafter.exception.InvalidCallException;
@@ -54,7 +56,7 @@ public class SavedJobService {
         return new CreatedRespDto(savedJob.getId(), "Job saved");
     }
 
-    public List<SavedJobRespDto> getByJobSeekerId(Long jobSeekerId, String loggedInUsername) {
+    public PagedRespDto<SavedJobRespDto> getByJobSeekerId(Long jobSeekerId, int page, int size, String loggedInUsername) {
         JobSeeker jobSeeker = jobSeekerRepository.findById(jobSeekerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Job seeker not found"));
 
@@ -62,7 +64,7 @@ public class SavedJobService {
         if (!jobSeeker.getUser().getUsername().equals(loggedInUsername))
             throw new OwnershipException("These saved jobs belong to another job seeker");
 
-        return savedJobRepository.getByJobSeekerId(jobSeekerId);
+        return PagedRespDto.of(savedJobRepository.getByJobSeekerId(jobSeekerId, PageRequest.of(page, size)));
     }
 
     public void deleteById(Long id, String loggedInUsername) {

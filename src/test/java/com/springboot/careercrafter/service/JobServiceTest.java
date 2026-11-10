@@ -13,7 +13,9 @@ import com.springboot.careercrafter.model.Employer;
 import com.springboot.careercrafter.model.Job;
 import com.springboot.careercrafter.model.User;
 import com.springboot.careercrafter.repository.EmployerRepository;
+import com.springboot.careercrafter.repository.JobApplicationRepository;
 import com.springboot.careercrafter.repository.JobRepository;
+import com.springboot.careercrafter.repository.SavedJobRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -41,6 +43,10 @@ public class JobServiceTest {
     private EmployerRepository employerRepository;
     @Mock
     private JobMapper jobMapper;
+    @Mock
+    private SavedJobRepository savedJobRepository;
+    @Mock
+    private JobApplicationRepository jobApplicationRepository;
 
     // ---- add : valid ----
     @Test
@@ -261,5 +267,42 @@ public class JobServiceTest {
 
         assertEquals(1, jobService.getActiveJobs(0, 5).size());
         verify(jobRepository, times(1)).getActiveJobs(PageRequest.of(0, 5));
+    }
+
+    // ---- getByEmployerId : valid, returns one page + pagination info ----
+    @Test
+    public void getByEmployerIdTest() {
+        JobRespDto dto = new JobRespDto(1L, "Java Developer", "Build REST APIs", "BE", "Chennai", "IT",
+                EmploymentType.FULL_TIME, 30000.0, 60000.0, null, true, LocalDateTime.now(), 1L, "TCS");
+
+        when(employerRepository.existsById(1L)).thenReturn(true);
+        when(jobRepository.getJobsByEmployerId(1L, PageRequest.of(1, 5)))
+                .thenReturn(new org.springframework.data.domain.PageImpl<>(List.of(dto), PageRequest.of(1, 5), 6));
+
+        com.springboot.careercrafter.dto.response.PagedRespDto<JobRespDto> result = jobService.getByEmployerId(1L, 1, 5);
+
+        assertEquals(1, result.content().size());
+        assertEquals(2, result.paginationInfo().totalPages()); // 6 jobs, 5 per page
+        assertEquals(6L, result.paginationInfo().totalRecords());
+        assertEquals(1, result.paginationInfo().numRecordsInPage());
+        verify(jobRepository, times(1)).getJobsByEmployerId(1L, PageRequest.of(1, 5));
+    }
+
+    // ---- filter : blank text is treated as "no filter" ----
+    @Test
+    public void filterTest() {
+        JobRespDto dto = new JobRespDto(1L, "Java Developer", "Build REST APIs", "BE", "Chennai", "IT",
+                EmploymentType.FULL_TIME, 30000.0, 60000.0, null, true, LocalDateTime.now(), 1L, "TCS");
+
+        when(jobRepository.filterJobs(null, "IT", null, null, "java", PageRequest.of(0, 5)))
+                .thenReturn(new org.springframework.data.domain.PageImpl<>(List.of(dto), PageRequest.of(0, 5), 7));
+
+        com.springboot.careercrafter.dto.response.PagedRespDto<JobRespDto> result =
+                jobService.filter("   ", " IT ", null, null, " java ", 0, 5);
+
+        assertEquals(1, result.content().size());
+        assertEquals(2, result.paginationInfo().totalPages());
+        assertEquals(7L, result.paginationInfo().totalRecords());
+        verify(jobRepository, times(1)).filterJobs(null, "IT", null, null, "java", PageRequest.of(0, 5));
     }
 }

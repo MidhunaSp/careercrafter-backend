@@ -9,6 +9,7 @@ public record ResumeRespDto(
         String filePath,
         String label,
         boolean isDefault,
-        LocalDateTime uploadedAt
+        LocalDateTime uploadedAt,
+        boolean shared
 ) {
 }

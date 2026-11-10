@@ -1,5 +1,6 @@
 package com.springboot.careercrafter.controller;
 
+import com.springboot.careercrafter.dto.response.PagedRespDto;
 import com.springboot.careercrafter.dto.request.JobSeekerReqDto;
 import com.springboot.careercrafter.dto.request.JobSeekerUpdateDto;
 import com.springboot.careercrafter.dto.response.CreatedRespDto;
@@ -40,12 +41,14 @@ public class JobSeekerController {
     }
 
     @GetMapping("/api/jobseeker/filter")
-    public List<JobSeekerRespDto> filter(
+    public PagedRespDto<JobSeekerRespDto> filter(
             @RequestParam(value = "fullName", required = false) String fullName,
             @RequestParam(value = "location", required = false) String location,
             @RequestParam(value = "skills", required = false) String skills,
-            @RequestParam(value = "education", required = false) String education) {
-        return jobSeekerService.filter(fullName, location, skills, education);
+            @RequestParam(value = "education", required = false) String education,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return jobSeekerService.filter(fullName, location, skills, education, page, size);
     }
 
     @PutMapping("/api/jobseeker/{id}")

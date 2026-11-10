@@ -48,9 +48,9 @@ public class EmployerServiceTest {
         Employer employer3 = new Employer();
         employer3.setId(3L);
 
-        EmployerRespDto dto1 = new EmployerRespDto(1L, 11L, "employer1", "ABC", "9876543210", VerificationStatus.VERIFIED, "emp1");
-        EmployerRespDto dto2 = new EmployerRespDto(2L, 12L, "employer2", "shine tech", "9876543211", VerificationStatus.VERIFIED, "emp2");
-        EmployerRespDto dto3 = new EmployerRespDto(3L, 13L, "employer3", "bright solutions", "9876543212", VerificationStatus.PENDING, "emp3");
+        EmployerRespDto dto1 = new EmployerRespDto(1L, 11L, "employer1", "ABC", "9876543210", VerificationStatus.VERIFIED, "emp1",true);
+        EmployerRespDto dto2 = new EmployerRespDto(2L, 12L, "employer2", "shine tech", "9876543211", VerificationStatus.VERIFIED, "emp2",true);
+        EmployerRespDto dto3 = new EmployerRespDto(3L, 13L, "employer3", "bright solutions", "9876543212", VerificationStatus.PENDING, "emp3",true);
 
 
         when(employerRepository.findByVerificationStatus(VerificationStatus.VERIFIED))
@@ -155,8 +155,8 @@ public class EmployerServiceTest {
         Employer employer2 = new Employer();
         employer2.setId(2L);
 
-        EmployerRespDto dto1 = new EmployerRespDto(1L, 11L, "employer1", "ABC", "9876543210", VerificationStatus.VERIFIED, "emp1");
-        EmployerRespDto dto2 = new EmployerRespDto(2L, 12L, "employer2", "shine tech", "9876543211", VerificationStatus.PENDING, "emp2");
+        EmployerRespDto dto1 = new EmployerRespDto(1L, 11L, "employer1", "ABC", "9876543210", VerificationStatus.VERIFIED, "emp1",true);
+        EmployerRespDto dto2 = new EmployerRespDto(2L, 12L, "employer2", "shine tech", "9876543211", VerificationStatus.PENDING, "emp2",true);
 
         when(employerRepository.findAll()).thenReturn(List.of(employer1, employer2));
         when(employerMapper.mapEntityToDto(employer1)).thenReturn(dto1);
@@ -170,5 +170,28 @@ public class EmployerServiceTest {
 
         verifyNoMoreInteractions(employerRepository);
         verifyNoMoreInteractions(employerMapper);
+    }
+
+    // ---- filter : one page + pagination info ----
+    @Test
+    public void filterTest() {
+        Employer employer = new Employer();
+        employer.setId(1L);
+        EmployerRespDto dto = new EmployerRespDto(1L, 1L, "Ravi", "TCS", "9876543210",
+                VerificationStatus.PENDING, "ravi", true);
+
+        when(employerRepository.filterEmployers(VerificationStatus.PENDING, "tcs", null,
+                org.springframework.data.domain.PageRequest.of(0, 5)))
+                .thenReturn(new org.springframework.data.domain.PageImpl<>(List.of(employer),
+                        org.springframework.data.domain.PageRequest.of(0, 5), 11));
+        when(employerMapper.mapEntityToDto(employer)).thenReturn(dto);
+
+        com.springboot.careercrafter.dto.response.PagedRespDto<EmployerRespDto> result =
+                employerService.filter(VerificationStatus.PENDING, " tcs ", "", 0, 5);
+
+        assertEquals(1, result.content().size());
+        assertEquals(3, result.paginationInfo().totalPages()); // 11 employers, 5 per page
+        assertEquals(11L, result.paginationInfo().totalRecords());
+        assertEquals(1, result.paginationInfo().numRecordsInPage());
     }
 }

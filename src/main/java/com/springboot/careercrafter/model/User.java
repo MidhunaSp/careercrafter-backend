@@ -33,6 +33,8 @@ public class User implements UserDetails {
 
     private boolean isActive;
 
+    private String suspensionReason;
+
     @PrePersist
     public void init() {
         this.isActive = true;

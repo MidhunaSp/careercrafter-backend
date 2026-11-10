@@ -9,6 +9,7 @@ public record EmployerRespDto(
         String companyName,
         String phone,
         VerificationStatus verificationStatus,
-        String username
+        String username,
+        Boolean active
 ) {
 }

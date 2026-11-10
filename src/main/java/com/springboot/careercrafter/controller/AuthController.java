@@ -2,6 +2,8 @@ package com.springboot.careercrafter.controller;
 
 import com.springboot.careercrafter.dto.response.DetailsDto;
 import com.springboot.careercrafter.dto.response.TokenDto;
+import com.springboot.careercrafter.exception.InactiveUserException;
+import com.springboot.careercrafter.model.User;
 import com.springboot.careercrafter.service.UserService;
 import com.springboot.careercrafter.utility.JwtUtility;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,13 @@ public class AuthController {
     @GetMapping("/api/auth/login")
     public TokenDto login(Principal principal) {
         String loggedInUsername = principal.getName();
+
+        User user = userService.getByUsername(loggedInUsername);
+        if (user != null && !user.isActive()) {
+            throw new InactiveUserException("Your account is suspended. Reason: "
+                    + (user.getSuspensionReason() == null ? "not specified" : user.getSuspensionReason()));
+        }
+
         String token = jwtUtility.generateToken(loggedInUsername);
         log.info("User logged in: {}", loggedInUsername);
         return new TokenDto(token,

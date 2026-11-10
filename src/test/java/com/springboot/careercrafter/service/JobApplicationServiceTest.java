@@ -1,5 +1,7 @@
 package com.springboot.careercrafter.service;
 
+import org.springframework.data.domain.PageImpl;
+import com.springboot.careercrafter.dto.response.PagedRespDto;
 import com.springboot.careercrafter.dto.response.CreatedRespDto;
 import com.springboot.careercrafter.dto.response.JobApplicationRespDto;
 import com.springboot.careercrafter.enums.ApplicationStatus;
@@ -8,11 +10,7 @@ import com.springboot.careercrafter.exception.OwnershipException;
 import com.springboot.careercrafter.exception.ResourceNotFoundException;
 import com.springboot.careercrafter.mapper.JobApplicationMapper;
 import com.springboot.careercrafter.model.*;
-import com.springboot.careercrafter.repository.ApplicationStatusHistoryRepository;
-import com.springboot.careercrafter.repository.JobApplicationRepository;
-import com.springboot.careercrafter.repository.JobRepository;
-import com.springboot.careercrafter.repository.JobSeekerRepository;
-import com.springboot.careercrafter.repository.ResumeRepository;
+import com.springboot.careercrafter.repository.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -45,6 +43,10 @@ public class JobApplicationServiceTest {
     private ResumeRepository resumeRepository;
     @Mock
     private ApplicationStatusHistoryRepository historyRepository;
+    @Mock
+    private NotificationService notificationService;
+    @Mock
+    private MessageRepository messageRepository;
 
     // ---- Valid Test----
     @Test
@@ -66,12 +68,16 @@ public class JobApplicationServiceTest {
         when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(applicant));
 
         when(jobApplicationRepository.findByApplicantIdWithDetails(1L, PageRequest.of(0, 5)))
-                .thenReturn(List.of(application1, application2));
+                .thenReturn(new PageImpl<>(List.of(application1, application2), PageRequest.of(0, 5), 2));
 
         when(jobApplicationMapper.mapEntityToDto(application1)).thenReturn(dto1);
         when(jobApplicationMapper.mapEntityToDto(application2)).thenReturn(dto2);
 
-        assertEquals(2, jobApplicationService.getByApplicantId(1L, 0, 5, "john").size()); // applicant 1 has 2 applications
+        PagedRespDto<JobApplicationRespDto> result = jobApplicationService.getByApplicantId(1L, 0, 5, "john");
+        assertEquals(2, result.content().size()); // applicant 1 has 2 applications
+        assertEquals(1, result.paginationInfo().totalPages());
+        assertEquals(2L, result.paginationInfo().totalRecords());
+        assertEquals(2, result.paginationInfo().numRecordsInPage());
 
         // verify that each mock method was called exactly once with these arguments (num of method invocations)
         verify(jobSeekerRepository, times(1)).findById(1L);
@@ -284,10 +290,14 @@ public class JobApplicationServiceTest {
 
         when(jobRepository.findById(1L)).thenReturn(Optional.of(job("techcorp", true)));
         when(jobApplicationRepository.findByJobIdWithDetails(1L, null, PageRequest.of(0, 5)))
-                .thenReturn(List.of(a1, a2));
+                .thenReturn(new PageImpl<>(List.of(a1, a2), PageRequest.of(0, 5), 12));
         when(jobApplicationMapper.mapEntityToDto(any(JobApplication.class))).thenReturn(dto);
 
-        assertEquals(2, jobApplicationService.getByJobId(1L, null, 0, 5, "techcorp").size());
+        PagedRespDto<JobApplicationRespDto> result = jobApplicationService.getByJobId(1L, null, 0, 5, "techcorp");
+        assertEquals(2, result.content().size());
+        assertEquals(3, result.paginationInfo().totalPages()); // 12 records, 5 per page -> 3 pages
+        assertEquals(12L, result.paginationInfo().totalRecords());
+        assertEquals(2, result.paginationInfo().numRecordsInPage());
     }
 
     @Test

@@ -24,7 +24,8 @@ public class EmployerMapper {
                 employer.getCompanyName(),
                 employer.getPhone(),
                 employer.getVerificationStatus(),
-                employer.getUser().getUsername()
+                employer.getUser().getUsername(),
+                employer.getUser().isActive()
         );
     }
 }

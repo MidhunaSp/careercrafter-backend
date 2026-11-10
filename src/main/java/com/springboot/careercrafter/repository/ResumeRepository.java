@@ -15,4 +15,6 @@ public interface ResumeRepository extends JpaRepository<Resume, Long> {
     // default resume of a jobseeker (used when resumeId is not given while applying)
     @Query("select r from Resume r where r.jobSeeker.id = ?1 and r.isDefault = true")
     Optional<Resume> findDefaultResume(Long jobSeekerId);
+
+    List<Resume> findByJobSeekerIdAndSharedTrueOrderByUploadedAtDesc(Long jobSeekerId);
 }

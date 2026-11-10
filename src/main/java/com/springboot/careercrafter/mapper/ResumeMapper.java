@@ -25,7 +25,8 @@ public class ResumeMapper {
                 r.getFilePath(),
                 r.getLabel(),
                 r.isDefault(),
-                r.getUploadedAt()
+                r.getUploadedAt(),
+                r.isShared()
         );
     }
 }

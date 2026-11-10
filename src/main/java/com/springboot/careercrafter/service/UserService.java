@@ -53,4 +53,15 @@ public class UserService {
         user.setActive(active);
         userRepository.save(user);
     }
+
+    // suspending stores the reason (shown to the user on login), activating clears it
+    public void updateUserStatus(String username, boolean active, String reason) {
+        User user = userRepository.loadUserByUsername(username);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+        user.setActive(active);
+        user.setSuspensionReason(active ? null : reason);
+        userRepository.save(user);
+    }
 }

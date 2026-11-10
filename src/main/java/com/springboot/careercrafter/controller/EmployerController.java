@@ -1,5 +1,6 @@
 package com.springboot.careercrafter.controller;
 
+import com.springboot.careercrafter.dto.response.PagedRespDto;
 import com.springboot.careercrafter.dto.request.EmployerReqDto;
 import com.springboot.careercrafter.dto.request.EmployerUpdateDto;
 import com.springboot.careercrafter.dto.response.CreatedRespDto;
@@ -31,11 +32,13 @@ public class EmployerController {
     }
 
     @GetMapping("/api/employer/filter")
-    public List<EmployerRespDto> filter(
+    public PagedRespDto<EmployerRespDto> filter(
             @RequestParam(value = "status", required = false) VerificationStatus status,
             @RequestParam(value = "companyName", required = false) String companyName,
-            @RequestParam(value = "fullName", required = false) String fullName) {
-        return employerService.filter(status, companyName, fullName);
+            @RequestParam(value = "fullName", required = false) String fullName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return employerService.filter(status, companyName, fullName, page, size);
     }
 
     @GetMapping("/api/employer/by-username")

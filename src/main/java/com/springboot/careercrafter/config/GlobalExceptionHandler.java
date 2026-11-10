@@ -1,6 +1,7 @@
 package com.springboot.careercrafter.config;
 
 import com.springboot.careercrafter.dto.response.ErrorRespDto;
+import com.springboot.careercrafter.exception.InactiveUserException;
 import com.springboot.careercrafter.exception.InvalidCallException;
 import com.springboot.careercrafter.exception.OwnershipException;
 import com.springboot.careercrafter.exception.ResourceNotFoundException;
@@ -80,5 +81,23 @@ public class GlobalExceptionHandler {
                 .body(new ErrorRespDto(e.getMessage(),
                         "You are not allowed to access this resource",
                         Instant.now()));
+    }
+
+    @ExceptionHandler(InactiveUserException.class)
+    public ResponseEntity<ErrorRespDto> handleInactiveUserException(InactiveUserException e) {
+        log.warn("Inactive user: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ErrorRespDto(e.getMessage(),
+                        "Your account is suspended. Please contact the admin",
+                        Instant.now()));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorRespDto> handleAll(Exception e) {
+        log.error("Unexpected error", e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorRespDto("Something went wrong. Please try again later.",
+                        "Unexpected server error", Instant.now()));
     }
 }

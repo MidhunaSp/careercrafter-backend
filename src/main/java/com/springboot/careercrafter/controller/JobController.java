@@ -1,5 +1,6 @@
 package com.springboot.careercrafter.controller;
 
+import com.springboot.careercrafter.dto.response.PagedRespDto;
 import com.springboot.careercrafter.dto.request.JobReqDto;
 import com.springboot.careercrafter.dto.response.CreatedRespDto;
 import com.springboot.careercrafter.dto.response.JobRespDto;
@@ -33,20 +34,20 @@ public class JobController {
     }
 
     @GetMapping("/api/job/filter")
-    public List<JobRespDto> filter(@RequestParam(value = "location", required = false) String location,
-                                   @RequestParam(value = "industry", required = false) String industry,
-                                   @RequestParam(value = "employmentType", required = false) EmploymentType employmentType,
-                                   @RequestParam(value = "minSalary", required = false) Double minSalary,
-                                   @RequestParam(value = "keyword", required = false) String keyword,
-                                   @RequestParam(defaultValue = "0") int page,
-                                   @RequestParam(defaultValue = "10") int size) {
+    public PagedRespDto<JobRespDto> filter(@RequestParam(value = "location", required = false) String location,
+                                           @RequestParam(value = "industry", required = false) String industry,
+                                           @RequestParam(value = "employmentType", required = false) EmploymentType employmentType,
+                                           @RequestParam(value = "minSalary", required = false) Double minSalary,
+                                           @RequestParam(value = "keyword", required = false) String keyword,
+                                           @RequestParam(defaultValue = "0") int page,
+                                           @RequestParam(defaultValue = "10") int size) {
         return jobService.filter(location, industry, employmentType, minSalary, keyword, page, size);
     }
 
     @GetMapping("/api/job/employer/{employerId}")
-    public List<JobRespDto> getByEmployerId(@PathVariable Long employerId,
-                                            @RequestParam(defaultValue = "0") int page,
-                                            @RequestParam(defaultValue = "10") int size) {
+    public PagedRespDto<JobRespDto> getByEmployerId(@PathVariable Long employerId,
+                                                    @RequestParam(defaultValue = "0") int page,
+                                                    @RequestParam(defaultValue = "10") int size) {
         return jobService.getByEmployerId(employerId, page, size);
     }
 
@@ -70,5 +71,10 @@ public class JobController {
     @DeleteMapping("/api/job/{id}")
     public void deleteById(@PathVariable Long id, Principal principal) {
         jobService.deleteById(id, principal.getName());
+    }
+
+    @PutMapping("/api/job/{id}/reopen")
+    public void reopen(@PathVariable Long id, Principal principal) {
+        jobService.reopen(id, principal.getName());
     }
 }

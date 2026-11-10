@@ -1,5 +1,8 @@
 package com.springboot.careercrafter.service;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+import com.springboot.careercrafter.dto.response.PagedRespDto;
 import com.springboot.careercrafter.dto.request.JobReqDto;
 import com.springboot.careercrafter.dto.response.CreatedRespDto;
 import com.springboot.careercrafter.dto.response.JobRespDto;
@@ -12,11 +15,14 @@ import com.springboot.careercrafter.mapper.JobMapper;
 import com.springboot.careercrafter.model.Employer;
 import com.springboot.careercrafter.model.Job;
 import com.springboot.careercrafter.repository.EmployerRepository;
+import com.springboot.careercrafter.repository.JobApplicationRepository;
 import com.springboot.careercrafter.repository.JobRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import com.springboot.careercrafter.repository.SavedJobRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -27,7 +33,9 @@ public class JobService {
 
     private final JobRepository jobRepository;
     private final EmployerRepository employerRepository;
-    private final JobMapper jobMapper;
+    private final SavedJobRepository savedJobRepository;
+    private final JobApplicationRepository jobApplicationRepository;
+    private final JobMatchService jobMatchService;
 
     public CreatedRespDto add(Long employerId, JobReqDto dto, String loggedInUsername) {
         // step 1: fetch employer from db using employerid
@@ -55,6 +63,7 @@ public class JobService {
         // step 7: save job and return id with message
         job = jobRepository.save(job);
         log.info("Job posted: id={}, employerId={}, title={}", job.getId(), employerId, job.getTitle());
+        jobMatchService.notifyMatchingSeekers(job);
         return new CreatedRespDto(job.getId(), "Job posted");
     }
 
@@ -70,21 +79,31 @@ public class JobService {
                 .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
     }
 
-    public List<JobRespDto> filter(String location, String industry, EmploymentType employmentType,
-                                   Double minSalary, String keyword, int page, int size) {
+    public PagedRespDto<JobRespDto> filter(String location, String industry, EmploymentType employmentType,
+                                           Double minSalary, String keyword, int page, int size) {
         // step 1: create pageable with page number and size
-        // step 2: run the custom filter query (all filters are optional) and return
-        return jobRepository.filterJobs(location, industry, employmentType, minSalary, keyword,
-                PageRequest.of(page, size));
+        Pageable pageable = PageRequest.of(page, size);
+
+        // step 2: run the custom filter query (all filters are optional, blank text = no filter)
+        Page<JobRespDto> jobPage = jobRepository.filterJobs(
+                blankToNull(location), blankToNull(industry), employmentType, minSalary,
+                blankToNull(keyword), pageable);
+
+        // step 3: return the jobs of this page with the pagination info
+        return PagedRespDto.of(jobPage);
     }
 
-    public List<JobRespDto> getByEmployerId(Long employerId, int page, int size) {
+    private String blankToNull(String text) {
+        return text == null || text.isBlank() ? null : text.trim();
+    }
+
+    public PagedRespDto<JobRespDto> getByEmployerId(Long employerId, int page, int size) {
         // step 1: check that the employer exists, throw exception if not
         if (!employerRepository.existsById(employerId))
             throw new ResourceNotFoundException("Employer not found");
 
         // step 2: fetch the jobs posted by this employer (paginated) and return
-        return jobRepository.getJobsByEmployerId(employerId, PageRequest.of(page, size));
+        return PagedRespDto.of(jobRepository.getJobsByEmployerId(employerId, PageRequest.of(page, size)));
     }
 
     public void update(Long id, JobReqDto dto, String loggedInUsername) {
@@ -121,19 +140,6 @@ public class JobService {
         log.info("Job closed: id={} by {}", id, loggedInUsername);
     }
 
-    public void deleteById(Long id, String loggedInUsername) {
-        // step 1: fetch job from db using id, throw exception if not found
-        Job job = jobRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
-
-        // step 2: check that the logged-in user is the owner of this job
-        checkOwner(job, loggedInUsername);
-
-        // step 3: delete the job from db
-        jobRepository.delete(job);
-        log.info("Job deleted: id={} by {}", id, loggedInUsername);
-    }
-
     private void checkOwner(Job job, String loggedInUsername) {
         // step 1: compare the job's employer username with the logged-in username
         // step 2: throw exception if they don't match
@@ -145,4 +151,42 @@ public class JobService {
         if (dto.minSalary() != null && dto.maxSalary() != null && dto.minSalary() > dto.maxSalary())
             throw new InvalidCallException("Min salary cannot be greater than max salary");
     }
+
+    @Transactional
+    public void deleteById(Long id, String loggedInUsername) {
+        // step 1: fetch job from db using id, throw exception if not found
+        Job job = jobRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
+
+        // step 2: check that the logged-in user is the owner of this job
+        checkOwner(job, loggedInUsername);
+
+        // step 3: a job that already has applications cannot be deleted
+        if (jobApplicationRepository.existsByJobId(id))
+            throw new InvalidCallException("This job has applications, so it cannot be deleted. Close the job instead.");
+
+        // step 4: remove the saved-job rows of this job first (foreign key)
+        savedJobRepository.deleteByJobId(id);
+
+        // step 5: delete the job from db
+        jobRepository.delete(job);
+        log.info("Job deleted: id={} by {}", id, loggedInUsername);
+    }
+
+    public void reopen(Long id, String loggedInUsername) {
+        // step 1: fetch job from db using id, throw exception if not found
+        Job job = jobRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
+
+        // step 2: check that the logged-in user is the owner of this job
+        checkOwner(job, loggedInUsername);
+
+        // step 3: mark the job as active again
+        job.setActive(true);
+
+        // step 4: save the job
+        jobRepository.save(job);
+        log.info("Job reopened: id={} by {}", id, loggedInUsername);
+    }
+
 }

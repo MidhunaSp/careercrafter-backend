@@ -27,14 +27,14 @@ public class MyUserDetailsServiceTest {
         user.setUsername("john");
         user.setPassword("pass2");
 
-        when(userRepository.loadUserByUsername("john", true)).thenReturn(user);
+        when(userRepository.loadUserByUsername("john")).thenReturn(user);
 
         UserDetails result = myUserDetailsService.loadUserByUsername("john");
 
         assertEquals("john", result.getUsername());
         assertEquals("pass2", result.getPassword());
 
-        verify(userRepository, times(1)).loadUserByUsername("john", true);
+        verify(userRepository, times(1)).loadUserByUsername("john");
         verifyNoMoreInteractions(userRepository);
     }
 }

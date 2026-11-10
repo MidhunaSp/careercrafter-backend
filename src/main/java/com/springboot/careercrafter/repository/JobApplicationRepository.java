@@ -1,5 +1,6 @@
 package com.springboot.careercrafter.repository;
 
+import org.springframework.data.domain.Page;
 import com.springboot.careercrafter.dto.response.ApplicationStatusStatDto;
 import com.springboot.careercrafter.enums.ApplicationStatus;
 import com.springboot.careercrafter.model.JobApplication;
@@ -15,12 +16,16 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication, 
     // select ja from JobApplication ja where ja.job.id = ?1 and ja.applicant.id = ?2
     boolean existsByJobIdAndApplicantId(Long jobId, Long applicantId);
 
+    boolean existsByResumeId(Long resumeId);
+
+    boolean existsByJobId(Long jobId);
+
     @Query("""
             select ja from JobApplication ja
             where ja.applicant.id = ?1
             order by ja.appliedAt desc
             """)
-    List<JobApplication> findByApplicantIdWithDetails(Long applicantId, Pageable pageable);
+    Page<JobApplication> findByApplicantIdWithDetails(Long applicantId, Pageable pageable);
 
     @Query("""
             select ja from JobApplication ja
@@ -28,7 +33,7 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication, 
             and (?2 is null or ja.status = ?2)
             order by ja.appliedAt desc
             """)
-    List<JobApplication> findByJobIdWithDetails(Long jobId, ApplicationStatus status, Pageable pageable);
+    Page<JobApplication> findByJobIdWithDetails(Long jobId, ApplicationStatus status, Pageable pageable);
 
     @Query("""
             select ja from JobApplication ja

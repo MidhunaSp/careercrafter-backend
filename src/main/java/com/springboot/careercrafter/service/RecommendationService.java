@@ -29,40 +29,40 @@ public class RecommendationService {
         JobSeeker js = jobSeekerRepository.findById(jobSeekerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Job seeker not found"));
 
-        // step 2: a job seeker can see recommendations only for his own account
+        // step 2: a jobseeker can see recommendations only for his own account
         if (!js.getUser().getUsername().equals(loggedInUsername))
             throw new OwnershipException("You can see recommendations only for your own account");
 
-        // step 3: skills "java, spring, sql" -> [java, spring, sql]
+        // step 3: no skills in the profile = nothing to match
+        if (js.getSkills() == null || js.getSkills().isBlank())
+            return List.of();
+
         List<String> skills = Arrays.stream(js.getSkills().split(","))
                 .map(String::trim)
                 .map(String::toLowerCase)
                 .filter(s -> !s.isEmpty())
                 .toList();
 
-        // step 4: score every active job
+        // step 4: a job is recommended if it contains at least one of the skills
         List<RecommendedJobRespDto> result = new ArrayList<>();
         for (JobRespDto job : jobRepository.getAllActiveJobs()) {
             String text = (job.title() + " " + job.description() + " "
                     + (job.qualifications() == null ? "" : job.qualifications())).toLowerCase();
 
-            List<String> matchedSkills = new ArrayList<>();
-            for (String skill : skills) {
-                if (text.contains(skill))
-                    matchedSkills.add(skill);
+            List<String> matchedSkills = skills.stream()
+                    .filter(text::contains)
+                    .toList();
+
+            if (!matchedSkills.isEmpty()) {
+                boolean locationMatch = js.getLocation() != null
+                        && js.getLocation().equalsIgnoreCase(job.location());
+
+                // score = number of matched skills (location is shown only, it does not change the score)
+                result.add(new RecommendedJobRespDto(job, matchedSkills.size(), matchedSkills, locationMatch));
             }
-
-            boolean locationMatch = js.getLocation() != null
-                    && js.getLocation().equalsIgnoreCase(job.location());
-
-            // each matched skill = 10 points, same location = 20 points
-            int score = matchedSkills.size() * 10 + (locationMatch ? 20 : 0);
-
-            if (score > 0)
-                result.add(new RecommendedJobRespDto(job, score, matchedSkills, locationMatch));
         }
 
-        // step 5: highest score first, return only the top "limit"
+        // step 5: most matched skills first, return only the top "limit"
         return result.stream()
                 .sorted(Comparator.comparingInt(RecommendedJobRespDto::score).reversed())
                 .limit(limit)

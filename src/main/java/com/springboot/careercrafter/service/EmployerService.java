@@ -1,5 +1,8 @@
 package com.springboot.careercrafter.service;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import com.springboot.careercrafter.dto.response.PagedRespDto;
 import com.springboot.careercrafter.dto.request.EmployerReqDto;
 import com.springboot.careercrafter.dto.request.EmployerUpdateDto;
 import com.springboot.careercrafter.dto.response.CreatedRespDto;
@@ -82,11 +85,16 @@ public class EmployerService {
                 .toList();
     }
 
-    public List<EmployerRespDto> filter(VerificationStatus status, String companyName, String fullName) {
-        return employerRepository.filterEmployers(status, companyName, fullName)
-                .stream()
-                .map(employerMapper::mapEntityToDto)
-                .toList();
+    public PagedRespDto<EmployerRespDto> filter(VerificationStatus status, String companyName, String fullName,
+                                                int page, int size) {
+        // blank text means "no filter"
+        Page<EmployerRespDto> employerPage = employerRepository
+                .filterEmployers(status,
+                        StringUtils.hasText(companyName) ? companyName.trim() : null,
+                        StringUtils.hasText(fullName) ? fullName.trim() : null,
+                        PageRequest.of(page, size))
+                .map(employerMapper::mapEntityToDto);
+        return PagedRespDto.of(employerPage);
     }
 
     public void update(Long id, EmployerUpdateDto dto, String loggedInUsername) {

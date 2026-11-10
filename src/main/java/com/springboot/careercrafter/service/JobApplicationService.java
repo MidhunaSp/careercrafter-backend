@@ -1,5 +1,6 @@
 package com.springboot.careercrafter.service;
 
+import com.springboot.careercrafter.dto.response.PagedRespDto;
 import com.springboot.careercrafter.dto.response.CreatedRespDto;
 import com.springboot.careercrafter.dto.response.JobApplicationRespDto;
 import com.springboot.careercrafter.enums.ApplicationStatus;
@@ -13,11 +14,7 @@ import com.springboot.careercrafter.model.Job;
 import com.springboot.careercrafter.model.JobApplication;
 import com.springboot.careercrafter.model.JobSeeker;
 import com.springboot.careercrafter.model.Resume;
-import com.springboot.careercrafter.repository.ApplicationStatusHistoryRepository;
-import com.springboot.careercrafter.repository.JobApplicationRepository;
-import com.springboot.careercrafter.repository.JobRepository;
-import com.springboot.careercrafter.repository.JobSeekerRepository;
-import com.springboot.careercrafter.repository.ResumeRepository;
+import com.springboot.careercrafter.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +35,7 @@ public class JobApplicationService {
     private final ResumeRepository resumeRepository;
     private final ApplicationStatusHistoryRepository historyRepository;
     private final NotificationService notificationService;
+    private final MessageRepository messageRepository;
 
     @Transactional
     public CreatedRespDto apply(Long jobId, Long applicantId, Long resumeId, String loggedInUsername) {
@@ -96,7 +94,7 @@ public class JobApplicationService {
         return new CreatedRespDto(application.getId(), "Applied successfully");
     }
 
-    public List<JobApplicationRespDto> getByApplicantId(Long applicantId, int page, int size, String loggedInUsername) {
+    public PagedRespDto<JobApplicationRespDto> getByApplicantId(Long applicantId, int page, int size, String loggedInUsername) {
         JobSeeker applicant = jobSeekerRepository.findById(applicantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Job seeker not found"));
 
@@ -104,14 +102,13 @@ public class JobApplicationService {
         if (!applicant.getUser().getUsername().equals(loggedInUsername))
             throw new OwnershipException("These applications belong to another job seeker");
 
-        return jobApplicationRepository.findByApplicantIdWithDetails(applicantId, PageRequest.of(page, size))
-                .stream()
-                .map(jobApplicationMapper::mapEntityToDto)
-                .toList();
+        return PagedRespDto.of(jobApplicationRepository
+                .findByApplicantIdWithDetails(applicantId, PageRequest.of(page, size))
+                .map(jobApplicationMapper::mapEntityToDto));
     }
 
-    public List<JobApplicationRespDto> getByJobId(Long jobId, ApplicationStatus status, int page, int size,
-                                                  String loggedInUsername) {
+    public PagedRespDto<JobApplicationRespDto> getByJobId(Long jobId, ApplicationStatus status, int page, int size,
+                                                          String loggedInUsername) {
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
 
@@ -119,10 +116,9 @@ public class JobApplicationService {
         if (!job.getEmployer().getUser().getUsername().equals(loggedInUsername))
             throw new OwnershipException("This job belongs to another employer");
 
-        return jobApplicationRepository.findByJobIdWithDetails(jobId, status, PageRequest.of(page, size))
-                .stream()
-                .map(jobApplicationMapper::mapEntityToDto)
-                .toList();
+        return PagedRespDto.of(jobApplicationRepository
+                .findByJobIdWithDetails(jobId, status, PageRequest.of(page, size))
+                .map(jobApplicationMapper::mapEntityToDto));
     }
 
     public JobApplicationRespDto getById(Long id, String loggedInUsername) {
@@ -147,8 +143,19 @@ public class JobApplicationService {
         if (!application.getApplicant().getUser().getUsername().equals(loggedInUsername))
             throw new OwnershipException("You can withdraw only your own applications");
 
+        // read what the notification needs before the application is deleted
+        String applicantName = application.getApplicant().getFullName();
+        String jobTitle = application.getJob().getTitle();
+        var employerUser = application.getJob().getEmployer().getUser();
+
+        messageRepository.detachFromApplication(id);
         historyRepository.deleteByJobApplicationId(id);
         jobApplicationRepository.delete(application);
         log.info("Job application withdrawn: id={} by {}", id, loggedInUsername);
+
+        // tell the employer that the applicant has withdrawn
+        notificationService.notifyUser(employerUser,
+                applicantName + " withdrew their application for " + jobTitle,
+                NotificationType.APPLICATION_STATUS_CHANGE);
     }
 }

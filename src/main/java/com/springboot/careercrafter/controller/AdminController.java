@@ -1,6 +1,7 @@
 package com.springboot.careercrafter.controller;
 
 import com.springboot.careercrafter.dto.request.AdminReqDto;
+import com.springboot.careercrafter.dto.request.UserStatusReqDto;
 import com.springboot.careercrafter.dto.response.AdminRespDto;
 import com.springboot.careercrafter.dto.response.CreatedRespDto;
 import com.springboot.careercrafter.service.AdminService;
@@ -33,5 +34,16 @@ public class AdminController {
     public AdminRespDto getByUsername(@RequestParam("username") String username) {
         return adminService.getByUsername(username);
     }
+
+    // admin closes (moderates) any job listing
+    @PutMapping("/api/admin/job/{jobId}/close")
+    public void closeJob(@PathVariable Long jobId) {
+        adminService.closeJob(jobId);
+    }
     // employer/verify/1/1
+
+    @PutMapping("/api/admin/user-status")
+    public void updateUserStatus(@Valid @RequestBody UserStatusReqDto dto, Principal principal) {
+        adminService.updateUserStatus(dto, principal.getName());
+    }
 }

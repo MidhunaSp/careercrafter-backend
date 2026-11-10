@@ -1,12 +1,12 @@
 package com.springboot.careercrafter.repository;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 import com.springboot.careercrafter.dto.response.SavedJobRespDto;
 import com.springboot.careercrafter.model.SavedJob;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface SavedJobRepository extends JpaRepository<SavedJob, Long> {
@@ -24,5 +24,7 @@ public interface SavedJobRepository extends JpaRepository<SavedJob, Long> {
             where sj.jobSeeker.id = ?1
             order by sj.savedAt desc
             """)
-    List<SavedJobRespDto> getByJobSeekerId(Long jobSeekerId);
+    Page<SavedJobRespDto> getByJobSeekerId(Long jobSeekerId, Pageable pageable);
+
+    void deleteByJobId(Long jobId);
 }

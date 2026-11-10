@@ -1,6 +1,7 @@
 package com.springboot.careercrafter.service;
 
 import com.springboot.careercrafter.dto.request.AdminReqDto;
+import com.springboot.careercrafter.dto.request.UserStatusReqDto;
 import com.springboot.careercrafter.dto.response.AdminRespDto;
 import com.springboot.careercrafter.dto.response.CreatedRespDto;
 import com.springboot.careercrafter.enums.NotificationType;
@@ -12,9 +13,11 @@ import com.springboot.careercrafter.exception.ResourceNotFoundException;
 import com.springboot.careercrafter.mapper.AdminMapper;
 import com.springboot.careercrafter.model.Admin;
 import com.springboot.careercrafter.model.Employer;
+import com.springboot.careercrafter.model.Job;
 import com.springboot.careercrafter.model.User;
 import com.springboot.careercrafter.repository.AdminRepository;
 import com.springboot.careercrafter.repository.EmployerRepository;
+import com.springboot.careercrafter.repository.JobRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +33,7 @@ public class AdminService {
     private final AdminRepository adminRepository;
     private final EmployerRepository employerRepository;
     private final NotificationService notificationService;
+    private final JobRepository jobRepository;
 
     public CreatedRespDto add(@Valid AdminReqDto adminReqDto) {
         User user = userService.createUser(adminReqDto.username(),adminReqDto.password(),Role.ADMIN);
@@ -72,5 +76,56 @@ public class AdminService {
         Admin admin = adminRepository.findByUserUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Admin not found with username: " + username));
         return new AdminRespDto(admin.getId(), admin.getName(), username);
+    }
+
+    public void closeJob(Long jobId) {
+        // step 1: fetch job from db using jobId
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
+
+        // step 2: a closed job cannot be closed again
+        if (!job.isActive())
+            throw new InvalidCallException("Job is already closed");
+
+        // step 3: mark the job as closed and save
+        job.setActive(false);
+        jobRepository.save(job);
+        log.info("Admin closed job: id={}", jobId);
+
+        // step 4: tell the employer why the job disappeared
+        notificationService.notifyUser(job.getEmployer().getUser(),
+                "Your job '" + job.getTitle() + "' was closed by the admin",
+                NotificationType.SYSTEM);
+    }
+
+    public void updateUserStatus(UserStatusReqDto dto, String adminUsername) {
+        boolean active = dto.active();
+        String reason = dto.reason() == null ? "" : dto.reason().trim();
+
+        // step 1: a suspension must always have a written reason (it is shown to the user and audited)
+        if (!active && reason.length() < 10)
+            throw new InvalidCallException("Please give a reason of at least 10 characters to suspend an account");
+        if (active && reason.isEmpty())
+            reason = "Account reactivated by admin";
+
+        // step 2: fetch the user, throw exception if not found
+        User user = userService.getByUsername(dto.username());
+        if (user == null)
+            throw new ResourceNotFoundException("User not found");
+
+        // step 3: admin accounts cannot be suspended
+        if (user.getRole() == Role.ADMIN)
+            throw new InvalidCallException("Admin accounts cannot be suspended");
+
+        // step 4: nothing to do if the account is already in that state
+        if (user.isActive() == active)
+            throw new InvalidCallException(active ? "Account is already active" : "Account is already suspended");
+
+        // step 5: change the status (the reason is stored on the user, the login page shows it)
+        userService.updateUserStatus(dto.username(), active, reason);
+
+        // the audit trail is the log (who, whom, why)
+        log.info("Account {}: username={}, by admin={}, reason={}",
+                active ? "reactivated" : "suspended", dto.username(), adminUsername, reason);
     }
 }

@@ -10,8 +10,11 @@ public record JobSeekerReqDto(
         String phone,
         @Size(max = 150)
         String location,
+        @NotBlank
         String education,
+        @NotBlank
         String experience,
+        @NotBlank
         @Size(max = 1000)
         String skills,
         @NotBlank(message = "Username is required")

@@ -42,6 +42,8 @@ public class ApplicationStatusHistoryServiceTest {
     private JobApplicationRepository jobApplicationRepository;
     @Mock
     private ApplicationStatusHistoryMapper historyMapper;
+    @Mock
+    private NotificationService  notificationService;
 
     // ---- add : valid ----
     @Test

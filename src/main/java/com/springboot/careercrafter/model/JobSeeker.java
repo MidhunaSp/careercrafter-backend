@@ -14,16 +14,23 @@ public class JobSeeker {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false)
     private String fullName;
-    @Column(nullable = false)
+
+    @Column(nullable = false, length = 10)
     private String phone;
+
     @Column(length = 150)
     private String location;
+
+    @Column(nullable = false,columnDefinition = "TEXT")
     private String education;
-    @Column(nullable = false)
+
+    @Column(nullable = false, length=1000)
     private String skills;
-    @Column(nullable = false)
+
+    @Column(nullable = false,columnDefinition = "TEXT")
     private String experience;
 
     @OneToOne

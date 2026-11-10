@@ -3,6 +3,7 @@ package com.springboot.careercrafter.repository;
 import com.springboot.careercrafter.dto.response.MessageRespDto;
 import com.springboot.careercrafter.model.Message;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -51,4 +52,8 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             order by m.sentAt asc
             """)
     List<MessageRespDto> getConversation(Long user1, Long user2);
+
+    @Modifying
+    @Query("update Message m set m.jobApplication = null where m.jobApplication.id = ?1")
+    void detachFromApplication(Long jobApplicationId);
 }

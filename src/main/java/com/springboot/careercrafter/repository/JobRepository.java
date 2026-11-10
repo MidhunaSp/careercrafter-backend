@@ -1,5 +1,6 @@
 package com.springboot.careercrafter.repository;
 
+import org.springframework.data.domain.Page;
 import com.springboot.careercrafter.dto.response.EmployerJobCountDto;
 import com.springboot.careercrafter.dto.response.IndustryCountDto;
 import com.springboot.careercrafter.dto.response.JobApplicantCountDto;
@@ -16,7 +17,7 @@ import java.util.Optional;
 public interface JobRepository extends JpaRepository<Job, Long> {
 
     @Query("""
-            select new com.springboot.careercrafter.dto.response.JobRespDto(
+            select new com.springboot.careercrafter.dto.response.JobApplicantCountDto(j.id, j.title, count(ja.id))
             j.id, j.title, j.description, j.qualifications, j.location, j.industry,
             j.employmentType, j.minSalary, j.maxSalary, j.applicationInstructions,
             j.active, j.createdAt, e.id, e.companyName)
@@ -48,7 +49,7 @@ public interface JobRepository extends JpaRepository<Job, Long> {
             where e.id = ?1
             order by j.createdAt desc
             """)
-    List<JobRespDto> getJobsByEmployerId(Long employerId, Pageable pageable);
+    Page<JobRespDto> getJobsByEmployerId(Long employerId, Pageable pageable);
 
     @Query("""
             select new com.springboot.careercrafter.dto.response.JobRespDto(
@@ -58,14 +59,15 @@ public interface JobRepository extends JpaRepository<Job, Long> {
             from Job j
             join j.employer e
             where j.active = true
-            and (?1 is null or j.location = ?1)
-            and (?2 is null or j.industry = ?2)
+            and (?1 is null or lower(j.location) like lower(concat('%', ?1, '%')))
+            and (?2 is null or lower(j.industry) like lower(concat('%', ?2, '%')))
             and (?3 is null or j.employmentType = ?3)
             and (?4 is null or j.maxSalary >= ?4)
-            and (?5 is null or j.title = ?5)
+            and (?5 is null or lower(j.title) like lower(concat('%', ?5, '%'))
+                 or lower(e.companyName) like lower(concat('%', ?5, '%')))
             order by j.createdAt desc
             """)
-    List<JobRespDto> filterJobs(String location, String industry, EmploymentType employmentType,
+    Page<JobRespDto> filterJobs(String location, String industry, EmploymentType employmentType,
                                 Double minSalary, String keyword, Pageable pageable);
 
 

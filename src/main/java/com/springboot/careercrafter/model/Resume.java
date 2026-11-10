@@ -36,6 +36,9 @@ public class Resume {
     @Column(name = "uploaded_at", nullable = false, updatable = false)
     private LocalDateTime uploadedAt;
 
+    @Column(name = "is_shared", nullable = false, columnDefinition = "boolean default false")
+    private boolean shared;
+
     @PrePersist
     void onCreate() {
         uploadedAt = LocalDateTime.now();

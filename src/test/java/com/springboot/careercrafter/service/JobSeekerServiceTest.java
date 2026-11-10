@@ -97,8 +97,8 @@ public class JobSeekerServiceTest {
         JobSeeker js2 = new JobSeeker();
         js2.setId(2L);
 
-        JobSeekerRespDto dto1 = new JobSeekerRespDto(1L, 1L, "John Doe", "9876543210", "Chennai", "BE", "2 years", "Java", "john");
-        JobSeekerRespDto dto2 = new JobSeekerRespDto(2L, 2L, "Mary Ann", "9876543211", "Pune", "BSc", "1 year", "Python", "mary");
+        JobSeekerRespDto dto1 = new JobSeekerRespDto(1L, 1L, "John Doe", "9876543210", "Chennai", "BE", "2 years", "Java", "john",true);
+        JobSeekerRespDto dto2 = new JobSeekerRespDto(2L, 2L, "Mary Ann", "9876543211", "Pune", "BSc", "1 year", "Python", "mary",true);
 
         when(jobSeekerRepository.findAll()).thenReturn(List.of(js1, js2));
         when(jobSeekerMapper.mapEntityToDto(js1)).thenReturn(dto1);
@@ -116,7 +116,7 @@ public class JobSeekerServiceTest {
     public void getByIdTest() {
         JobSeeker js = new JobSeeker();
         js.setId(1L);
-        JobSeekerRespDto dto = new JobSeekerRespDto(1L, 1L, "John Doe", "9876543210", "Chennai", "BE", "2 years", "Java", "john");
+        JobSeekerRespDto dto = new JobSeekerRespDto(1L, 1L, "John Doe", "9876543210", "Chennai", "BE", "2 years", "Java", "john",true);
 
         when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(js));
         when(jobSeekerMapper.mapEntityToDto(js)).thenReturn(dto);
@@ -145,7 +145,7 @@ public class JobSeekerServiceTest {
     public void getByUsernameTest() {
         JobSeeker js = new JobSeeker();
         js.setId(1L);
-        JobSeekerRespDto dto = new JobSeekerRespDto(1L, 1L, "John Doe", "9876543210", "Chennai", "BE", "2 years", "Java", "john");
+        JobSeekerRespDto dto = new JobSeekerRespDto(1L, 1L, "John Doe", "9876543210", "Chennai", "BE", "2 years", "Java", "john",true);
 
         when(jobSeekerRepository.findByUserUsername("john")).thenReturn(Optional.of(js));
         when(jobSeekerMapper.mapEntityToDto(js)).thenReturn(dto);
@@ -282,5 +282,27 @@ public class JobSeekerServiceTest {
                 () -> jobSeekerService.deleteById(99L, "john"));
 
         verifyNoMoreInteractions(userRepository);
+    }
+
+    // ---- filter : one page + pagination info ----
+    @Test
+    public void filterTest() {
+        JobSeeker js = new JobSeeker();
+        js.setId(1L);
+        JobSeekerRespDto dto = new JobSeekerRespDto(1L, 1L, "John", "9876543210", "Chennai", "BE",
+                "2 years", "java, spring", "john", true);
+
+        when(jobSeekerRepository.filterJobSeekers(null, "chennai", "java", null,
+                org.springframework.data.domain.PageRequest.of(0, 5)))
+                .thenReturn(new org.springframework.data.domain.PageImpl<>(List.of(js),
+                        org.springframework.data.domain.PageRequest.of(0, 5), 1));
+        when(jobSeekerMapper.mapEntityToDto(js)).thenReturn(dto);
+
+        com.springboot.careercrafter.dto.response.PagedRespDto<JobSeekerRespDto> result =
+                jobSeekerService.filter(" ", "chennai", "java", null, 0, 5);
+
+        assertEquals(1, result.content().size());
+        assertEquals(1, result.paginationInfo().totalPages());
+        assertEquals(1L, result.paginationInfo().totalRecords());
     }
 }

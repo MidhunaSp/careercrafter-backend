@@ -1,5 +1,6 @@
 package com.springboot.careercrafter.controller;
 
+import com.springboot.careercrafter.dto.response.PagedRespDto;
 import com.springboot.careercrafter.dto.response.CreatedRespDto;
 import com.springboot.careercrafter.dto.response.SavedJobRespDto;
 import com.springboot.careercrafter.service.SavedJobService;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 public class SavedJobController {
 
     private final SavedJobService savedJobService;
@@ -23,8 +25,11 @@ public class SavedJobController {
     }
 
     @GetMapping("/api/savedJob/jobseeker/{jobSeekerId}")
-    public List<SavedJobRespDto> getByJobSeekerId(@PathVariable Long jobSeekerId, Principal principal) {
-        return savedJobService.getByJobSeekerId(jobSeekerId, principal.getName());
+    public PagedRespDto<SavedJobRespDto> getByJobSeekerId(@PathVariable Long jobSeekerId,
+                                                          @RequestParam(defaultValue = "0") int page,
+                                                          @RequestParam(defaultValue = "10") int size,
+                                                          Principal principal) {
+        return savedJobService.getByJobSeekerId(jobSeekerId, page, size, principal.getName());
     }
 
     @DeleteMapping("/api/savedJob/{id}")

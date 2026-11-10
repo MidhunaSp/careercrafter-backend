@@ -29,7 +29,8 @@ public class JobSeekerMapper {
                 js.getEducation(),
                 js.getExperience(),
                 js.getSkills(),
-                js.getUser().getUsername()
+                js.getUser().getUsername(),
+                js.getUser().isActive()
         );
     }
 }

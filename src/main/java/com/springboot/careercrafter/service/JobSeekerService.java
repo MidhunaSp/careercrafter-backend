@@ -1,5 +1,8 @@
 package com.springboot.careercrafter.service;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import com.springboot.careercrafter.dto.response.PagedRespDto;
 import com.springboot.careercrafter.dto.request.JobSeekerReqDto;
 import com.springboot.careercrafter.dto.request.JobSeekerUpdateDto;
 import com.springboot.careercrafter.dto.response.CreatedRespDto;
@@ -60,11 +63,18 @@ public class JobSeekerService {
         return jobSeekerMapper.mapEntityToDto(js);
     }
 
-    public List<JobSeekerRespDto> filter(String fullName, String location, String skills, String education) {
-        return jobSeekerRepository.filterJobSeekers(fullName, location, skills, education)
-                .stream()
-                .map(jobSeekerMapper::mapEntityToDto)
-                .toList();
+    public PagedRespDto<JobSeekerRespDto> filter(String fullName, String location, String skills, String education,
+                                                 int page, int size) {
+        // blank text means "no filter"
+        Page<JobSeekerRespDto> seekerPage = jobSeekerRepository
+                .filterJobSeekers(
+                        StringUtils.hasText(fullName) ? fullName.trim() : null,
+                        StringUtils.hasText(location) ? location.trim() : null,
+                        StringUtils.hasText(skills) ? skills.trim() : null,
+                        StringUtils.hasText(education) ? education.trim() : null,
+                        PageRequest.of(page, size))
+                .map(jobSeekerMapper::mapEntityToDto);
+        return PagedRespDto.of(seekerPage);
     }
 
     public void update(Long id, JobSeekerUpdateDto dto, String loggedInUsername) {

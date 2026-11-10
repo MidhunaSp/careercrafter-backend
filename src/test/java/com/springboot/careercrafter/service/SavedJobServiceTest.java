@@ -1,5 +1,8 @@
 package com.springboot.careercrafter.service;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.PageImpl;
+import com.springboot.careercrafter.dto.response.PagedRespDto;
 import com.springboot.careercrafter.dto.response.CreatedRespDto;
 import com.springboot.careercrafter.dto.response.SavedJobRespDto;
 import com.springboot.careercrafter.exception.InvalidCallException;
@@ -104,23 +107,27 @@ public class SavedJobServiceTest {
     public void getByJobSeekerIdTest() {
         SavedJobRespDto dto = new SavedJobRespDto(1L, Instant.now(), 2L, "Java Developer", "TCS", "Chennai");
         when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(jobSeeker("john")));
-        when(savedJobRepository.getByJobSeekerId(1L)).thenReturn(List.of(dto));
+        when(savedJobRepository.getByJobSeekerId(1L, PageRequest.of(0, 5)))
+                .thenReturn(new PageImpl<>(List.of(dto), PageRequest.of(0, 5), 1));
 
-        assertEquals(1, savedJobService.getByJobSeekerId(1L, "john").size());
-        verify(savedJobRepository, times(1)).getByJobSeekerId(1L);
+        PagedRespDto<SavedJobRespDto> result = savedJobService.getByJobSeekerId(1L, 0, 5, "john");
+        assertEquals(1, result.content().size());
+        assertEquals(1, result.paginationInfo().totalPages());
+        assertEquals(1L, result.paginationInfo().totalRecords());
+        verify(savedJobRepository, times(1)).getByJobSeekerId(1L, PageRequest.of(0, 5));
     }
 
     @Test
     public void getByJobSeekerIdTest_NotFound() {
         when(jobSeekerRepository.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> savedJobService.getByJobSeekerId(1L, "john"));
+        assertThrows(ResourceNotFoundException.class, () -> savedJobService.getByJobSeekerId(1L, 0, 5, "john"));
         verifyNoInteractions(savedJobRepository);
     }
 
     @Test
     public void getByJobSeekerIdTest_NotOwner() {
         when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(jobSeeker("john")));
-        assertThrows(OwnershipException.class, () -> savedJobService.getByJobSeekerId(1L, "someoneelse"));
+        assertThrows(OwnershipException.class, () -> savedJobService.getByJobSeekerId(1L, 0, 5, "someoneelse"));
         verifyNoInteractions(savedJobRepository);
     }
 

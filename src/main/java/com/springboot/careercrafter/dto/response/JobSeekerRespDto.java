@@ -9,6 +9,7 @@ public record JobSeekerRespDto(
         String education,
         String experience,
         String skills,
-        String username
+        String username,
+        Boolean active
 ) {
 }

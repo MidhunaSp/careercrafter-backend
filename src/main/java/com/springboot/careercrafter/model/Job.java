@@ -59,7 +59,12 @@ public class Job {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // ONE @PrePersist only
+    @Column(name = "jd_file_name", length = 255)
+    private String jdFileName;
+
+    @Column(name = "jd_file_path", length = 255)
+    private String jdFilePath;
+
     @PrePersist
     void onCreate() {
         this.active = true;

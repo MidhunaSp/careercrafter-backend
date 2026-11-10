@@ -42,7 +42,7 @@ public class SecurityConfig {
                         // anyone can browse the jobs
                         .requestMatchers(HttpMethod.GET, "/api/job/all", "/api/job/filter", "/api/job/{id}").permitAll()
 
-                        // EMPLOYER stats - must stay ABOVE the admin "/api/stats/**" rule
+                        // EMPLOYER stats
                         .requestMatchers(HttpMethod.GET, "/api/stats/employer/**").hasAuthority("EMPLOYER")
 
                         // ADMIN
@@ -52,12 +52,14 @@ public class SecurityConfig {
                                 "/api/employer/by-verification", "/api/jobseeker/all").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/notification/add/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/admin/by-username").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/admin/user-status", "/api/admin/job/**").hasAuthority("ADMIN")
 
                         // ADMIN OR EMPLOYER (employer searches the candidates)
                         .requestMatchers(HttpMethod.GET, "/api/jobseeker/filter").hasAnyAuthority("ADMIN", "EMPLOYER")
 
                         // EMPLOYER
                         .requestMatchers(HttpMethod.POST, "/api/job/add/**").hasAuthority("EMPLOYER")
+                        .requestMatchers(HttpMethod.POST, "/api/job/*/jd").hasAuthority("EMPLOYER")
                         .requestMatchers(HttpMethod.GET, "/api/job/employer/**").hasAuthority("EMPLOYER")
                         .requestMatchers(HttpMethod.PUT, "/api/job/**").hasAuthority("EMPLOYER")
                         .requestMatchers(HttpMethod.DELETE, "/api/job/**").hasAuthority("EMPLOYER")
@@ -66,8 +68,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/applicationStatusHistory/employer/**").hasAuthority("EMPLOYER")
                         .requestMatchers(HttpMethod.PUT, "/api/employer/{id}").hasAuthority("EMPLOYER")
                         .requestMatchers(HttpMethod.DELETE, "/api/employer/{id}").hasAuthority("EMPLOYER")
-                        // employer views the applicant's resume - must stay ABOVE the "/api/resume/**" rule
+                        // employer views the applicant's resume
                         .requestMatchers(HttpMethod.GET, "/api/resume/application/**").hasAuthority("EMPLOYER")
+                        .requestMatchers(HttpMethod.GET, "/api/resume/shared/**").hasAuthority("EMPLOYER")
 
                         // JOB_SEEKER
                         .requestMatchers(HttpMethod.POST, "/api/jobApplication/add/**").hasAuthority("JOB_SEEKER")
