@@ -19,7 +19,7 @@ import static org.mockito.Mockito.*;
 public class UserServiceTest {
 
     @InjectMocks
-    private UserService userService; // real service, mocks below are injected into it
+    private UserService userService;
     @Mock
     private UserRepository userRepository;
     @Mock

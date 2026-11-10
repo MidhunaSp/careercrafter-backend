@@ -37,6 +37,8 @@ public class MessageServiceTest {
     private UserRepository userRepository;
     @Mock
     private JobApplicationRepository jobApplicationRepository;
+    @Mock
+    private NotificationService notificationService;
 
     private User user(String name) {
         User u = new User();
@@ -67,6 +69,7 @@ public class MessageServiceTest {
         assertEquals(5L, response.id());
         assertEquals("Message sent", response.message());
         verify(messageRepository, times(1)).save(any(Message.class));
+        verify(notificationService, times(1)).notifyUser(any(User.class), anyString(), any());
         verifyNoInteractions(jobApplicationRepository);
     }
 

@@ -117,9 +117,7 @@ public class JobApplicationServiceTest {
         Long applicantId = 1L;
         String loggedInUsername = "john";
 
-        Job job = new Job();
-        job.setId(1L);
-        job.setActive(true);
+        Job job = job("techcorp", true);
 
         User user = new User();
         user.setUsername("john");

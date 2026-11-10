@@ -54,9 +54,17 @@ public class ApplicationStatusHistoryServiceTest {
         employer.setUser(employerUser);
         Job job = new Job();
         job.setEmployer(employer);
+        job.setTitle("Java Developer");
+
+        User applicantUser = new User();
+        applicantUser.setUsername("john");
+        JobSeeker applicant = new JobSeeker();
+        applicant.setUser(applicantUser);
+
         JobApplication application = new JobApplication();
         application.setId(1L);
         application.setJob(job);
+        application.setApplicant(applicant);
         application.setStatus(ApplicationStatus.APPLIED);
 
         ApplicationStatusHistoryReqDto dto = new ApplicationStatusHistoryReqDto(ApplicationStatus.SHORTLISTED, "Good profile");
@@ -80,6 +88,8 @@ public class ApplicationStatusHistoryServiceTest {
         verify(jobApplicationRepository, times(1)).save(application);
         verify(historyMapper, times(1)).mapDtoToEntity(dto);
         verify(historyRepository, times(1)).save(history);
+        // the applicant must be told about the change
+        verify(notificationService, times(1)).notifyUser(eq(applicantUser), anyString(), any());
 
         verifyNoMoreInteractions(jobApplicationRepository);
         verifyNoMoreInteractions(historyMapper);

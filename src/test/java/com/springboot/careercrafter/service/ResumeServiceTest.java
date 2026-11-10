@@ -2,12 +2,14 @@ package com.springboot.careercrafter.service;
 
 import com.springboot.careercrafter.dto.request.ResumeReqDto;
 import com.springboot.careercrafter.dto.response.CreatedRespDto;
+import com.springboot.careercrafter.exception.InvalidCallException;
 import com.springboot.careercrafter.exception.OwnershipException;
 import com.springboot.careercrafter.exception.ResourceNotFoundException;
 import com.springboot.careercrafter.mapper.ResumeMapper;
 import com.springboot.careercrafter.model.JobSeeker;
 import com.springboot.careercrafter.model.Resume;
 import com.springboot.careercrafter.model.User;
+import com.springboot.careercrafter.repository.JobApplicationRepository;
 import com.springboot.careercrafter.repository.JobSeekerRepository;
 import com.springboot.careercrafter.repository.ResumeRepository;
 import org.junit.jupiter.api.Test;
@@ -36,6 +38,8 @@ public class ResumeServiceTest {
     private JobSeekerRepository jobSeekerRepository;
     @Mock
     private ResumeMapper resumeMapper;
+    @Mock
+    private JobApplicationRepository jobApplicationRepository;
 
     // ---- add : first resume always becomes the default ----
     @Test
@@ -156,6 +160,7 @@ public class ResumeServiceTest {
         resume3.setJobSeeker(jobSeeker);
         resume3.setDefault(false);
 
+        // existsByResumeId is not stubbed -> the mock returns false (resume not used in an application)
         when(resumeRepository.findById(1L)).thenReturn(Optional.of(resume1));
         when(resumeRepository.findByJobSeekerIdOrderByUploadedAtDesc(1L)).thenReturn(List.of(resume3));
 
@@ -163,6 +168,7 @@ public class ResumeServiceTest {
 
         assertTrue(resume3.isDefault());
 
+        verify(jobApplicationRepository, times(1)).existsByResumeId(1L);
         verify(resumeRepository, times(1)).findById(1L);
         verify(resumeRepository, times(1)).delete(resume1);
         verify(resumeRepository, times(1)).flush();
@@ -170,6 +176,18 @@ public class ResumeServiceTest {
         verify(resumeRepository, times(1)).save(resume3);
 
         verifyNoMoreInteractions(resumeRepository);
+    }
+
+    // ---- deleteById : Invalid Test (resume is used in a job application) ----
+    @Test
+    public void deleteByIdTest_UsedInApplication() {
+        when(jobApplicationRepository.existsByResumeId(1L)).thenReturn(true);
+
+        assertThrows(InvalidCallException.class,
+                () -> resumeService.deleteById(1L, "john"));
+
+        verify(jobApplicationRepository, times(1)).existsByResumeId(1L);
+        verifyNoInteractions(resumeRepository);
     }
 
     // ---- deleteById : Invalid Test (not found) ----

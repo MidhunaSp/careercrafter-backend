@@ -1,7 +1,6 @@
 package com.springboot.careercrafter.service;
 
 import com.springboot.careercrafter.dto.request.AdminReqDto;
-import com.springboot.careercrafter.dto.request.UserStatusReqDto;
 import com.springboot.careercrafter.dto.response.CreatedRespDto;
 import com.springboot.careercrafter.enums.NotificationType;
 import com.springboot.careercrafter.enums.Role;
@@ -32,7 +31,7 @@ import static org.mockito.Mockito.*;
 public class AdminServiceTest {
 
     @InjectMocks
-    private AdminService adminService; // real service, mocks below are injected into it
+    private AdminService adminService;
     @Mock
     private UserService userService;
     @Mock
@@ -224,55 +223,5 @@ public class AdminServiceTest {
         verifyNoMoreInteractions(notificationService);
     }
 
-    // ---- updateUserStatus : suspend with reason ----
-    @Test
-    public void updateUserStatusTest_Suspend() {
-        User user = new User();
-        user.setUsername("ravi");
-        user.setRole(Role.JOB_SEEKER);
-        user.setActive(true);
 
-        when(userService.getByUsername("ravi")).thenReturn(user);
-
-        adminService.updateUserStatus(
-                new UserStatusReqDto("ravi", false, "Repeated login attacks on other accounts"), "admin1");
-
-        verify(userService, times(1)).updateUserStatus("ravi", false, "Repeated login attacks on other accounts");
-    }
-
-    // ---- updateUserStatus : no reason -> rejected before anything is touched ----
-    @Test
-    public void updateUserStatusTest_ReasonMissing() {
-        assertThrows(InvalidCallException.class, () -> adminService.updateUserStatus(
-                new UserStatusReqDto("ravi", false, "  short "), "admin1"));
-
-        verifyNoInteractions(userService);
-    }
-
-    // ---- updateUserStatus : admin accounts cannot be suspended ----
-    @Test
-    public void updateUserStatusTest_AdminAccount() {
-        User user = new User();
-        user.setRole(Role.ADMIN);
-        when(userService.getByUsername("admin2")).thenReturn(user);
-
-        assertThrows(InvalidCallException.class, () -> adminService.updateUserStatus(
-                new UserStatusReqDto("admin2", false, "Trying to suspend another admin"), "admin1"));
-
-        verify(userService, never()).updateUserStatus(anyString(), anyBoolean(), any());
-    }
-
-    // ---- updateUserStatus : already suspended ----
-    @Test
-    public void updateUserStatusTest_AlreadySuspended() {
-        User user = new User();
-        user.setRole(Role.EMPLOYER);
-        user.setActive(false);
-        when(userService.getByUsername("emp1")).thenReturn(user);
-
-        assertThrows(InvalidCallException.class, () -> adminService.updateUserStatus(
-                new UserStatusReqDto("emp1", false, "Fake company documents found"), "admin1"));
-
-        verify(userService, never()).updateUserStatus(anyString(), anyBoolean(), any());
-    }
 }

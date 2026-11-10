@@ -68,8 +68,6 @@ public class JobService {
     }
 
     public List<JobRespDto> getActiveJobs(int page, int size) {
-        // step 1: create pageable with page number and size
-        // step 2: fetch only the active jobs for that page and return
         return jobRepository.getActiveJobs(PageRequest.of(page, size));
     }
 

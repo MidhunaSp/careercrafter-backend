@@ -17,15 +17,15 @@ import java.util.Optional;
 public interface JobRepository extends JpaRepository<Job, Long> {
 
     @Query("""
-            select new com.springboot.careercrafter.dto.response.JobApplicantCountDto(j.id, j.title, count(ja.id))
-            j.id, j.title, j.description, j.qualifications, j.location, j.industry,
-            j.employmentType, j.minSalary, j.maxSalary, j.applicationInstructions,
-            j.active, j.createdAt, e.id, e.companyName)
-            from Job j
-            join j.employer e
-            where j.active = true
-            order by j.createdAt desc
-            """)
+        select new com.springboot.careercrafter.dto.response.JobRespDto(
+        j.id, j.title, j.description, j.qualifications, j.location, j.industry,
+        j.employmentType, j.minSalary, j.maxSalary, j.applicationInstructions,
+        j.active, j.createdAt, e.id, e.companyName)
+        from Job j
+        join j.employer e
+        where j.active = true
+        order by j.createdAt desc
+        """)
     List<JobRespDto> getActiveJobs(Pageable pageable);
 
     @Query("""
@@ -72,11 +72,11 @@ public interface JobRepository extends JpaRepository<Job, Long> {
 
 
     @Query("""
-            select new com.springboot.careercrafter.dto.response.JobApplicantCountDto(j.title, count(ja.id))
-            from JobApplication ja
-            join ja.job j
-            group by j.id, j.title
-            """)
+        select new com.springboot.careercrafter.dto.response.JobApplicantCountDto(j.id, j.title, count(ja.id))
+        from JobApplication ja
+        join ja.job j
+        group by j.id, j.title
+        """)
     List<JobApplicantCountDto> getApplicantCountPerJob();
 
     @Query("""
@@ -106,11 +106,11 @@ public interface JobRepository extends JpaRepository<Job, Long> {
     List<JobRespDto> getAllActiveJobs();
 
     @Query("""
-        select new com.springboot.careercrafter.dto.response.JobApplicantCountDto(j.title, count(ja.id))
-        from Job j
-        left join JobApplication ja on ja.job = j
-        where j.employer.user.username = ?1
-        group by j.id, j.title
-        """)
+    select new com.springboot.careercrafter.dto.response.JobApplicantCountDto(j.id, j.title, count(ja.id))
+    from Job j
+    left join JobApplication ja on ja.job = j
+    where j.employer.user.username = ?1
+    group by j.id, j.title
+    """)
     List<JobApplicantCountDto> getApplicantCountPerJobByEmployer(String username);
 }
