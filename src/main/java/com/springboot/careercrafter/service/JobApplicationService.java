@@ -37,6 +37,10 @@ public class JobApplicationService {
     private final NotificationService notificationService;
     private final MessageRepository messageRepository;
 
+    private static final String JOB_APPLICATION_NOT_FOUND = "Job Application not found";
+    private static final String JOBSEEKER_NOT_FOUND = "Job seeker not found";
+    private static final String JOB_NOT_FOUND = "Job not found";
+
     @Transactional
     public CreatedRespDto apply(Long jobId, Long applicantId, Long resumeId, String loggedInUsername) {
         // step 1: fetch job and applicant
@@ -96,7 +100,7 @@ public class JobApplicationService {
 
     public PagedRespDto<JobApplicationRespDto> getByApplicantId(Long applicantId, int page, int size, String loggedInUsername) {
         JobSeeker applicant = jobSeekerRepository.findById(applicantId)
-                .orElseThrow(() -> new ResourceNotFoundException("Job seeker not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(JOBSEEKER_NOT_FOUND));
 
         // only the applicant can see his own applications
         if (!applicant.getUser().getUsername().equals(loggedInUsername))
@@ -110,7 +114,7 @@ public class JobApplicationService {
     public PagedRespDto<JobApplicationRespDto> getByJobId(Long jobId, ApplicationStatus status, int page, int size,
                                                           String loggedInUsername) {
         Job job = jobRepository.findById(jobId)
-                .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(JOB_NOT_FOUND));
 
         // only the employer who posted the job can see its applicants
         if (!job.getEmployer().getUser().getUsername().equals(loggedInUsername))
@@ -123,7 +127,7 @@ public class JobApplicationService {
 
     public JobApplicationRespDto getById(Long id, String loggedInUsername) {
         JobApplication ja = jobApplicationRepository.findDetailsById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Job application not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(JOB_APPLICATION_NOT_FOUND));
 
         // only the applicant and the employer of the job can see an application
         String applicantUsername = ja.getApplicant().getUser().getUsername();
@@ -137,7 +141,7 @@ public class JobApplicationService {
     @Transactional
     public void withdraw(Long id, String loggedInUsername) {
         JobApplication application = jobApplicationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Job application not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(JOB_APPLICATION_NOT_FOUND));
 
         // only the applicant can withdraw his application
         if (!application.getApplicant().getUser().getUsername().equals(loggedInUsername))

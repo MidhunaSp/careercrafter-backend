@@ -153,7 +153,7 @@ public class ResumeService {
 
         Resume resume = resumeRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Resume not found"));
+                        new ResourceNotFoundException(RESUME_NOT_FOUND));
 
         checkOwner(resume, loggedInUsername);
 

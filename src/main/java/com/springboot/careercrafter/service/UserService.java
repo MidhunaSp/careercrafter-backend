@@ -20,6 +20,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    private static final String USER_NOT_FOUND = "User not found";
+
     public User createUser(String username, String password, Role role) {
         if (userRepository.existsByUsername(username))
             throw new InvalidCallException("Username already taken");
@@ -39,7 +41,7 @@ public class UserService {
     public DetailsDto getUserDetails(String loggedInUsername) {
         DetailsDto detailsDto = userRepository.getUserDetails(loggedInUsername);
         if (detailsDto == null)
-            throw new ResourceNotFoundException("User not found");
+            throw new ResourceNotFoundException(USER_NOT_FOUND);
         if(!detailsDto.isActive())
             throw new InactiveUserException("User is disabled");
         return detailsDto;
@@ -48,7 +50,7 @@ public class UserService {
     public void updateUserStatus(String username, boolean active) {
         User user = userRepository.loadUserByUsername(username);
         if (user == null) {
-            throw new ResourceNotFoundException("User not found");
+            throw new ResourceNotFoundException(USER_NOT_FOUND);
         }
         user.setActive(active);
         userRepository.save(user);
@@ -58,7 +60,7 @@ public class UserService {
     public void updateUserStatus(String username, boolean active, String reason) {
         User user = userRepository.loadUserByUsername(username);
         if (user == null) {
-            throw new ResourceNotFoundException("User not found");
+            throw new ResourceNotFoundException(USER_NOT_FOUND);
         }
         user.setActive(active);
         user.setSuspensionReason(active ? null : reason);
