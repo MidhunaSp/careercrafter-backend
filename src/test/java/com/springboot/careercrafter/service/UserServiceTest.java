@@ -27,7 +27,7 @@ public class UserServiceTest {
 
     // ---- Valid Test ----
     @Test
-    public void createUserTest() {
+    void createUserTest() {
         User savedUser = new User();
         savedUser.setUsername("john");
         savedUser.setPassword("pass2");
@@ -53,7 +53,7 @@ public class UserServiceTest {
 
     // ---- Invalid Test ----
     @Test
-    public void createUserTest_UsernameTaken() {
+    void createUserTest_UsernameTaken() {
         when(userRepository.existsByUsername("john")).thenReturn(true);
 
         assertThrows(InvalidCallException.class,

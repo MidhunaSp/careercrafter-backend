@@ -50,7 +50,7 @@ public class JobServiceTest {
 
     // ---- add : valid ----
     @Test
-    public void addTest() {
+    void addTest() {
         User user = new User();
         user.setUsername("techcorp");
         Employer employer = new Employer();
@@ -78,7 +78,7 @@ public class JobServiceTest {
 
     // ---- add : employer not found ----
     @Test
-    public void addTest_EmployerNotFound() {
+    void addTest_EmployerNotFound() {
         JobReqDto dto = new JobReqDto("Java Developer", "Build REST APIs", "BE", "Chennai", "IT",
                 EmploymentType.FULL_TIME, 30000.0, 60000.0, "Apply by email");
 
@@ -92,7 +92,7 @@ public class JobServiceTest {
 
     // ---- add : employer not verified ----
     @Test
-    public void addTest_EmployerNotVerified() {
+    void addTest_EmployerNotVerified() {
         User user = new User();
         user.setUsername("techcorp");
         Employer employer = new Employer();
@@ -112,7 +112,7 @@ public class JobServiceTest {
 
     // ---- add : logged in user is not the employer owner ----
     @Test
-    public void addTest_WrongOwner() {
+    void addTest_WrongOwner() {
         User user = new User();
         user.setUsername("techcorp");
         Employer employer = new Employer();
@@ -132,7 +132,7 @@ public class JobServiceTest {
 
     // ---- add : min salary greater than max salary ----
     @Test
-    public void addTest_InvalidSalary() {
+    void addTest_InvalidSalary() {
         User user = new User();
         user.setUsername("techcorp");
         Employer employer = new Employer();
@@ -152,7 +152,7 @@ public class JobServiceTest {
 
     // ---- getById : valid ----
     @Test
-    public void getByIdTest() {
+    void getByIdTest() {
         JobRespDto jobRespDto = new JobRespDto(1L, "Java Developer", "Build REST APIs", "BE", "Chennai",
                 "IT", EmploymentType.FULL_TIME, 30000.0, 60000.0, "Apply by email", true,
                 LocalDateTime.now(), 1L, "TechCorp");
@@ -169,7 +169,7 @@ public class JobServiceTest {
 
     // ---- getById : invalid ----
     @Test
-    public void getByIdTest_Invalid() {
+    void getByIdTest_Invalid() {
         when(jobRepository.getJobDetailsById(99L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> jobService.getById(99L));
@@ -179,7 +179,7 @@ public class JobServiceTest {
 
     // ---- getByEmployerId : employer not found ----
     @Test
-    public void getByEmployerIdTest_Invalid() {
+    void getByEmployerIdTest_Invalid() {
         when(employerRepository.existsById(99L)).thenReturn(false);
 
         assertThrows(ResourceNotFoundException.class, () -> jobService.getByEmployerId(99L, 0, 5));
@@ -189,7 +189,7 @@ public class JobServiceTest {
 
     // ---- close : valid ----
     @Test
-    public void closeTest() {
+    void closeTest() {
         User user = new User();
         user.setUsername("techcorp");
         Employer employer = new Employer();
@@ -212,7 +212,7 @@ public class JobServiceTest {
 
     // ---- close : wrong owner ----
     @Test
-    public void closeTest_WrongOwner() {
+    void closeTest_WrongOwner() {
         User user = new User();
         user.setUsername("techcorp");
         Employer employer = new Employer();
@@ -231,7 +231,7 @@ public class JobServiceTest {
 
     // ---- deleteById : valid ----
     @Test
-    public void deleteByIdTest() {
+    void deleteByIdTest() {
         User user = new User();
         user.setUsername("techcorp");
         Employer employer = new Employer();
@@ -250,7 +250,7 @@ public class JobServiceTest {
 
     // ---- deleteById : job not found ----
     @Test
-    public void deleteByIdTest_Invalid() {
+    void deleteByIdTest_Invalid() {
         when(jobRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> jobService.deleteById(99L, "techcorp"));
@@ -260,7 +260,7 @@ public class JobServiceTest {
 
     // ---- getActiveJobs ----
     @Test
-    public void getActiveJobsTest() {
+    void getActiveJobsTest() {
         JobRespDto dto = new JobRespDto(1L, "Java Developer", "Build REST APIs", "BE", "Chennai", "IT",
                 EmploymentType.FULL_TIME, 30000.0, 60000.0, "Apply by email", true, null, 1L, "TCS");
         when(jobRepository.getActiveJobs(PageRequest.of(0, 5))).thenReturn(List.of(dto));
@@ -271,7 +271,7 @@ public class JobServiceTest {
 
     // ---- getByEmployerId : valid, returns one page + pagination info ----
     @Test
-    public void getByEmployerIdTest() {
+    void getByEmployerIdTest() {
         JobRespDto dto = new JobRespDto(1L, "Java Developer", "Build REST APIs", "BE", "Chennai", "IT",
                 EmploymentType.FULL_TIME, 30000.0, 60000.0, null, true, LocalDateTime.now(), 1L, "TCS");
 
@@ -290,7 +290,7 @@ public class JobServiceTest {
 
     // ---- filter : blank text is treated as "no filter" ----
     @Test
-    public void filterTest() {
+    void filterTest() {
         JobRespDto dto = new JobRespDto(1L, "Java Developer", "Build REST APIs", "BE", "Chennai", "IT",
                 EmploymentType.FULL_TIME, 30000.0, 60000.0, null, true, LocalDateTime.now(), 1L, "TCS");
 

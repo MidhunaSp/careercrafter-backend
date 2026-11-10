@@ -47,7 +47,7 @@ public class ApplicationStatusHistoryServiceTest {
 
     // ---- add : valid ----
     @Test
-    public void addTest() {
+    void addTest() {
         User employerUser = new User();
         employerUser.setUsername("techcorp");
         Employer employer = new Employer();
@@ -98,7 +98,7 @@ public class ApplicationStatusHistoryServiceTest {
 
     // ---- add : application not found ----
     @Test
-    public void addTest_ApplicationNotFound() {
+    void addTest_ApplicationNotFound() {
         ApplicationStatusHistoryReqDto dto = new ApplicationStatusHistoryReqDto(ApplicationStatus.SHORTLISTED, "Good profile");
 
         when(jobApplicationRepository.findById(99L)).thenReturn(Optional.empty());
@@ -114,7 +114,7 @@ public class ApplicationStatusHistoryServiceTest {
 
     // ---- add : logged in user is not the employer of the job ----
     @Test
-    public void addTest_NotEmployer() {
+    void addTest_NotEmployer() {
         User employerUser = new User();
         employerUser.setUsername("techcorp");
         Employer employer = new Employer();
@@ -141,7 +141,7 @@ public class ApplicationStatusHistoryServiceTest {
 
     // ---- add : application already in the same status ----
     @Test
-    public void addTest_SameStatus() {
+    void addTest_SameStatus() {
         User employerUser = new User();
         employerUser.setUsername("techcorp");
         Employer employer = new Employer();
@@ -166,7 +166,7 @@ public class ApplicationStatusHistoryServiceTest {
 
     // ---- getTimeline : valid ----
     @Test
-    public void getTimelineTest() {
+    void getTimelineTest() {
         User applicantUser = new User();
         applicantUser.setUsername("john");
         JobSeeker applicant = new JobSeeker();
@@ -211,7 +211,7 @@ public class ApplicationStatusHistoryServiceTest {
 
     // ---- getTimeline : application not found ----
     @Test
-    public void getTimelineTest_NotFound() {
+    void getTimelineTest_NotFound() {
         when(jobApplicationRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
@@ -223,7 +223,7 @@ public class ApplicationStatusHistoryServiceTest {
 
     // ---- getTimeline : user is neither the applicant nor the employer ----
     @Test
-    public void getTimelineTest_NotOwner() {
+    void getTimelineTest_NotOwner() {
         User applicantUser = new User();
         applicantUser.setUsername("john");
         JobSeeker applicant = new JobSeeker();
@@ -251,7 +251,7 @@ public class ApplicationStatusHistoryServiceTest {
 
     // ---- getAllEmployerHistories : valid ----
     @Test
-    public void getAllEmployerHistoriesTest() {
+    void getAllEmployerHistoriesTest() {
         JobApplication application = new JobApplication();
         application.setId(1L);
         ApplicationStatusHistory history = new ApplicationStatusHistory();

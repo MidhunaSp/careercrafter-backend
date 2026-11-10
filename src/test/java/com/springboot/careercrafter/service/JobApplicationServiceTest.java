@@ -50,7 +50,7 @@ public class JobApplicationServiceTest {
 
     // ---- Valid Test----
     @Test
-    public void getByApplicantIdTest() {
+    void getByApplicantIdTest() {
         JobApplicationRespDto dto1 = new JobApplicationRespDto(1L, ApplicationStatus.APPLIED, Instant.now(), Instant.now(), 1L, "Java Developer", "TCS", 1L, "john", null);
         JobApplicationRespDto dto2 = new JobApplicationRespDto(2L, ApplicationStatus.SHORTLISTED, Instant.now(), Instant.now(), 2L, "Tester", "Infosys", 1L, "john", null);
 
@@ -93,7 +93,7 @@ public class JobApplicationServiceTest {
 
     // ---Invalid Test---
     @Test
-    public void getByApplicantIdTest_Invalid() {
+    void getByApplicantIdTest_Invalid() {
         // findById(7) returns empty -> job seeker not found
         when(jobSeekerRepository.findById(7L)).thenReturn(Optional.empty());
 
@@ -111,7 +111,7 @@ public class JobApplicationServiceTest {
     }
 
     @Test
-    public void saveTest() {
+    void saveTest() {
         // mock
         Long jobId = 1L;
         Long applicantId = 1L;
@@ -178,14 +178,14 @@ public class JobApplicationServiceTest {
 
     // ---- apply ----
     @Test
-    public void saveTest_JobNotFound() {
+    void saveTest_JobNotFound() {
         when(jobRepository.findById(1L)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, () -> jobApplicationService.apply(1L, 1L, null, "john"));
         verify(jobApplicationRepository, times(0)).save(any(JobApplication.class));
     }
 
     @Test
-    public void saveTest_ApplicantNotFound() {
+    void saveTest_ApplicantNotFound() {
         when(jobRepository.findById(1L)).thenReturn(Optional.of(job("techcorp", true)));
         when(jobSeekerRepository.findById(1L)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, () -> jobApplicationService.apply(1L, 1L, null, "john"));

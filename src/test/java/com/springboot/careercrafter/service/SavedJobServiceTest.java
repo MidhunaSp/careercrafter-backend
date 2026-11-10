@@ -54,7 +54,7 @@ public class SavedJobServiceTest {
 
     // ---- add ----
     @Test
-    public void addTest() {
+    void addTest() {
         SavedJob saved = new SavedJob();
         saved.setId(10L);
 
@@ -71,14 +71,14 @@ public class SavedJobServiceTest {
     }
 
     @Test
-    public void addTest_JobSeekerNotFound() {
+    void addTest_JobSeekerNotFound() {
         when(jobSeekerRepository.findById(1L)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, () -> savedJobService.add(1L, 2L, "john"));
         verify(savedJobRepository, times(0)).save(any(SavedJob.class));
     }
 
     @Test
-    public void addTest_JobNotFound() {
+    void addTest_JobNotFound() {
         when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(jobSeeker("john")));
         when(jobRepository.findById(2L)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, () -> savedJobService.add(1L, 2L, "john"));
@@ -86,7 +86,7 @@ public class SavedJobServiceTest {
     }
 
     @Test
-    public void addTest_NotOwner() {
+    void addTest_NotOwner() {
         when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(jobSeeker("john")));
         when(jobRepository.findById(2L)).thenReturn(Optional.of(new Job()));
         assertThrows(OwnershipException.class, () -> savedJobService.add(1L, 2L, "someoneelse"));
@@ -94,7 +94,7 @@ public class SavedJobServiceTest {
     }
 
     @Test
-    public void addTest_AlreadySaved() {
+    void addTest_AlreadySaved() {
         when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(jobSeeker("john")));
         when(jobRepository.findById(2L)).thenReturn(Optional.of(new Job()));
         when(savedJobRepository.existsByJobSeekerIdAndJobId(1L, 2L)).thenReturn(true);
@@ -104,7 +104,7 @@ public class SavedJobServiceTest {
 
     // ---- getByJobSeekerId ----
     @Test
-    public void getByJobSeekerIdTest() {
+    void getByJobSeekerIdTest() {
         SavedJobRespDto dto = new SavedJobRespDto(1L, Instant.now(), 2L, "Java Developer", "TCS", "Chennai");
         when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(jobSeeker("john")));
         when(savedJobRepository.getByJobSeekerId(1L, PageRequest.of(0, 5)))
@@ -118,7 +118,7 @@ public class SavedJobServiceTest {
     }
 
     @Test
-    public void getByJobSeekerIdTest_NotFound() {
+    void getByJobSeekerIdTest_NotFound() {
         when(jobSeekerRepository.findById(1L)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, () -> savedJobService.getByJobSeekerId(1L, 0, 5, "john"));
         verifyNoInteractions(savedJobRepository);

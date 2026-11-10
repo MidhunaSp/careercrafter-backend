@@ -43,7 +43,7 @@ public class ResumeServiceTest {
 
     // ---- add : first resume always becomes the default ----
     @Test
-    public void addTest_FirstResumeBecomesDefault() {
+    void addTest_FirstResumeBecomesDefault() {
         User user = new User();
         user.setUsername("john");
         JobSeeker jobSeeker = new JobSeeker();
@@ -83,7 +83,7 @@ public class ResumeServiceTest {
 
     // ---- add : new resume marked default -> old default is turned off ----
     @Test
-    public void addTest_NewDefaultReplacesOldDefault() {
+    void addTest_NewDefaultReplacesOldDefault() {
         User user = new User();
         user.setUsername("john");
         JobSeeker jobSeeker = new JobSeeker();
@@ -120,7 +120,7 @@ public class ResumeServiceTest {
 
     // ---- add : Invalid Test (not the owner) ----
     @Test
-    public void addTest_NotOwner() {
+    void addTest_NotOwner() {
         User user = new User();
         user.setUsername("john");
         JobSeeker jobSeeker = new JobSeeker();
@@ -143,7 +143,7 @@ public class ResumeServiceTest {
 
     // ---- deleteById : default resume deleted -> next resume becomes the default ----
     @Test
-    public void deleteByIdTest_DefaultResume_NextOneBecomesDefault() {
+    void deleteByIdTest_DefaultResume_NextOneBecomesDefault() {
         User user = new User();
         user.setUsername("john");
         JobSeeker jobSeeker = new JobSeeker();
@@ -180,7 +180,7 @@ public class ResumeServiceTest {
 
     // ---- deleteById : Invalid Test (resume is used in a job application) ----
     @Test
-    public void deleteByIdTest_UsedInApplication() {
+    void deleteByIdTest_UsedInApplication() {
         when(jobApplicationRepository.existsByResumeId(1L)).thenReturn(true);
 
         assertThrows(InvalidCallException.class,
@@ -192,7 +192,7 @@ public class ResumeServiceTest {
 
     // ---- deleteById : Invalid Test (not found) ----
     @Test
-    public void deleteByIdTest_NotFound() {
+    void deleteByIdTest_NotFound() {
         when(resumeRepository.findById(9L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
@@ -206,7 +206,7 @@ public class ResumeServiceTest {
 
     // ---- deleteById : Invalid Test (not the owner) ----
     @Test
-    public void deleteByIdTest_NotOwner() {
+    void deleteByIdTest_NotOwner() {
         User user = new User();
         user.setUsername("john");
         JobSeeker jobSeeker = new JobSeeker();
@@ -230,7 +230,7 @@ public class ResumeServiceTest {
 
     // ---- makeDefault : only the chosen resume stays default ----
     @Test
-    public void makeDefaultTest() {
+    void makeDefaultTest() {
         User user = new User();
         user.setUsername("john");
         JobSeeker jobSeeker = new JobSeeker();
@@ -261,13 +261,13 @@ public class ResumeServiceTest {
     }
 
     @Test
-    public void getByJobSeekerIdTest_NotFound() {
+    void getByJobSeekerIdTest_NotFound() {
         when(jobSeekerRepository.findById(1L)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, () -> resumeService.getByJobSeekerId(1L, "john"));
     }
 
     @Test
-    public void getByIdTest_NotFound() {
+    void getByIdTest_NotFound() {
         when(resumeRepository.findById(1L)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, () -> resumeService.getById(1L, "john"));
     }

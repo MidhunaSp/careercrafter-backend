@@ -37,7 +37,7 @@ public class NotificationServiceTest {
 
     // ---- add : valid ----
     @Test
-    public void addTest() {
+    void addTest() {
         User user = new User();
         user.setId(1L);
         NotificationReqDto dto = new NotificationReqDto("Welcome to CareerCrafter", NotificationType.SYSTEM);
@@ -62,7 +62,7 @@ public class NotificationServiceTest {
 
     // ---- add : user not found ----
     @Test
-    public void addTest_UserNotFound() {
+    void addTest_UserNotFound() {
         NotificationReqDto dto = new NotificationReqDto("Welcome", NotificationType.SYSTEM);
 
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
@@ -76,7 +76,7 @@ public class NotificationServiceTest {
 
     // ---- getByUserId : valid ----
     @Test
-    public void getByUserIdTest() {
+    void getByUserIdTest() {
         User user = new User();
         user.setId(1L);
         user.setUsername("john");
@@ -98,7 +98,7 @@ public class NotificationServiceTest {
 
     // ---- getByUserId : reading someone else's notifications ----
     @Test
-    public void getByUserIdTest_NotOwner() {
+    void getByUserIdTest_NotOwner() {
         User user = new User();
         user.setId(1L);
         user.setUsername("john");
@@ -113,7 +113,7 @@ public class NotificationServiceTest {
 
     // ---- markRead : valid ----
     @Test
-    public void markReadTest() {
+    void markReadTest() {
         User user = new User();
         user.setUsername("john");
         Notification notification = new Notification();
@@ -136,7 +136,7 @@ public class NotificationServiceTest {
 
     // ---- markRead : not the owner ----
     @Test
-    public void markReadTest_NotOwner() {
+    void markReadTest_NotOwner() {
         User user = new User();
         user.setUsername("john");
         Notification notification = new Notification();
@@ -153,7 +153,7 @@ public class NotificationServiceTest {
 
     // ---- markRead : not found ----
     @Test
-    public void markReadTest_NotFound() {
+    void markReadTest_NotFound() {
         when(notificationRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
@@ -165,7 +165,7 @@ public class NotificationServiceTest {
 
     // ---- deleteById : valid ----
     @Test
-    public void deleteByIdTest() {
+    void deleteByIdTest() {
         User user = new User();
         user.setUsername("john");
         Notification notification = new Notification();
@@ -184,7 +184,7 @@ public class NotificationServiceTest {
 
     // ---- deleteById : not the owner ----
     @Test
-    public void deleteByIdTest_NotOwner() {
+    void deleteByIdTest_NotOwner() {
         User user = new User();
         user.setUsername("john");
         Notification notification = new Notification();
@@ -201,7 +201,7 @@ public class NotificationServiceTest {
 
     // ---- notifyUser ----
     @Test
-    public void notifyUserTest() {
+    void notifyUserTest() {
         User user = new User();
         user.setId(1L);
 
@@ -213,7 +213,7 @@ public class NotificationServiceTest {
     }
 
     @Test
-    public void deleteByIdTest_NotFound() {
+    void deleteByIdTest_NotFound() {
         when(notificationRepository.findById(1L)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, () -> notificationService.deleteById(1L, "john"));
         verify(notificationRepository, times(0)).delete(any(Notification.class));

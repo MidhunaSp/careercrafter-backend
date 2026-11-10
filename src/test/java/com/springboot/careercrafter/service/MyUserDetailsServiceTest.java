@@ -22,7 +22,7 @@ public class MyUserDetailsServiceTest {
 
     // ---- loadUserByUsername : valid ----
     @Test
-    public void loadUserByUsernameTest() {
+    void loadUserByUsernameTest() {
         User user = new User();
         user.setUsername("john");
         user.setPassword("pass2");

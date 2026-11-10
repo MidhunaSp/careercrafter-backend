@@ -29,7 +29,7 @@ public class StatsServiceTest {
     private JobApplicationRepository jobApplicationRepository;
 
     @Test
-    public void getApplicantCountPerJobTest() {
+    void getApplicantCountPerJobTest() {
         JobApplicantCountDto dto1 = new JobApplicantCountDto("Java Developer", 5L);
         JobApplicantCountDto dto2 = new JobApplicantCountDto("Tester", 3L);
 
@@ -46,7 +46,7 @@ public class StatsServiceTest {
     }
 
     @Test
-    public void getJobCountPerEmployerTest() {
+    void getJobCountPerEmployerTest() {
         EmployerJobCountDto dto1 = new EmployerJobCountDto("TechCorp", 4L);
         EmployerJobCountDto dto2 = new EmployerJobCountDto("Infosys", 2L);
 
@@ -63,7 +63,7 @@ public class StatsServiceTest {
     }
 
     @Test
-    public void getJobCountByIndustryTest() {
+    void getJobCountByIndustryTest() {
         IndustryCountDto dto1 = new IndustryCountDto("IT", 10L);
         IndustryCountDto dto2 = new IndustryCountDto("Banking", 3L);
 
@@ -80,7 +80,7 @@ public class StatsServiceTest {
     }
 
     @Test
-    public void getApplicationStatusStatTest() {
+    void getApplicationStatusStatTest() {
         ApplicationStatusStatDto dto1 = new ApplicationStatusStatDto(ApplicationStatus.APPLIED, 6L);
         ApplicationStatusStatDto dto2 = new ApplicationStatusStatDto(ApplicationStatus.HIRED, 1L);
 
@@ -98,7 +98,7 @@ public class StatsServiceTest {
 
     // ---- no data in db -> empty list ----
     @Test
-    public void getJobCountByIndustryTest_NoData() {
+    void getJobCountByIndustryTest_NoData() {
         when(jobRepository.getJobCountByIndustry()).thenReturn(List.of());
 
         assertEquals(0, statsService.getJobCountByIndustry().size());

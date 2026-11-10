@@ -40,7 +40,7 @@ public class EmployerServiceTest {
 
     // ---- Valid Test----
     @Test
-    public void getByVerificationStatusTest() {
+    void getByVerificationStatusTest() {
         Employer employer1 = new Employer();
         employer1.setId(1L);
         Employer employer2 = new Employer();
@@ -82,7 +82,7 @@ public class EmployerServiceTest {
 
     // ---Invalid Test---
     @Test
-    public void getByIdTest_Invalid() {
+    void getByIdTest_Invalid() {
 
         when(employerRepository.findById(7L)).thenReturn(Optional.empty());
 
@@ -101,7 +101,7 @@ public class EmployerServiceTest {
     }
 
     @Test
-    public void saveTest() {
+    void saveTest() {
 
         // mock
         EmployerReqDto employerReqDto = new EmployerReqDto("John", "ABC", "9876543210", "john", "john123");
@@ -133,14 +133,14 @@ public class EmployerServiceTest {
     }
 
     @Test
-    public void getByUsernameTest_Invalid() {
+    void getByUsernameTest_Invalid() {
         when(employerRepository.findByUserUsername("nobody")).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, () -> employerService.getByUsername("nobody"));
     }
 
     // ---- getAll ----
     @Test
-    public void getAllTest() {
+    void getAllTest() {
         Employer employer1 = new Employer();
         employer1.setId(1L);
         Employer employer2 = new Employer();
@@ -165,7 +165,7 @@ public class EmployerServiceTest {
 
     // ---- filter : one page + pagination info ----
     @Test
-    public void filterTest() {
+    void filterTest() {
         Employer employer = new Employer();
         employer.setId(1L);
         EmployerRespDto dto = new EmployerRespDto(1L, 1L, "Ravi", "TCS", "9876543210",

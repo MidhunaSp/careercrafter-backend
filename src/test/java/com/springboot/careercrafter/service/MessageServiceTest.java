@@ -55,7 +55,7 @@ public class MessageServiceTest {
 
     // ---- add ----
     @Test
-    public void addTest() {
+    void addTest() {
         MessageReqDto dto = new MessageReqDto("Hello");
         Message saved = new Message();
         saved.setId(5L);
@@ -74,7 +74,7 @@ public class MessageServiceTest {
     }
 
     @Test
-    public void addTest_SameUser() {
+    void addTest_SameUser() {
         MessageReqDto dto = new MessageReqDto("Hello");
         assertThrows(InvalidCallException.class, () -> messageService.add(1L, 1L, null, dto, "john"));
         verifyNoInteractions(userRepository);
@@ -82,7 +82,7 @@ public class MessageServiceTest {
     }
 
     @Test
-    public void addTest_SenderNotFound() {
+    void addTest_SenderNotFound() {
         MessageReqDto dto = new MessageReqDto("Hello");
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, () -> messageService.add(1L, 2L, null, dto, "john"));
@@ -90,7 +90,7 @@ public class MessageServiceTest {
     }
 
     @Test
-    public void addTest_ReceiverNotFound() {
+    void addTest_ReceiverNotFound() {
         MessageReqDto dto = new MessageReqDto("Hello");
         when(userRepository.findById(1L)).thenReturn(Optional.of(user("john")));
         when(userRepository.findById(2L)).thenReturn(Optional.empty());
@@ -99,7 +99,7 @@ public class MessageServiceTest {
     }
 
     @Test
-    public void addTest_NotOwner() {
+    void addTest_NotOwner() {
         MessageReqDto dto = new MessageReqDto("Hello");
         when(userRepository.findById(1L)).thenReturn(Optional.of(user("john")));
         when(userRepository.findById(2L)).thenReturn(Optional.of(user("mary")));
@@ -108,7 +108,7 @@ public class MessageServiceTest {
     }
 
     @Test
-    public void addTest_ApplicationNotFound() {
+    void addTest_ApplicationNotFound() {
         MessageReqDto dto = new MessageReqDto("Hello");
         when(userRepository.findById(1L)).thenReturn(Optional.of(user("john")));
         when(userRepository.findById(2L)).thenReturn(Optional.of(user("mary")));
@@ -119,7 +119,7 @@ public class MessageServiceTest {
 
     // ---- getInbox / getSent ----
     @Test
-    public void getInboxTest() {
+    void getInboxTest() {
         MessageRespDto dto = new MessageRespDto(1L, 2L, "mary", 1L, "john", "Hi", false, Instant.now(), null);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user("john")));
         when(messageRepository.getInbox(1L)).thenReturn(List.of(dto));
@@ -129,14 +129,14 @@ public class MessageServiceTest {
     }
 
     @Test
-    public void getInboxTest_UserNotFound() {
+    void getInboxTest_UserNotFound() {
         when(userRepository.findById(7L)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, () -> messageService.getInbox(7L, "john"));
         verifyNoInteractions(messageRepository);
     }
 
     @Test
-    public void getSentTest() {
+    void getSentTest() {
         MessageRespDto dto = new MessageRespDto(1L, 1L, "john", 2L, "mary", "Hi", false, Instant.now(), null);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user("john")));
         when(messageRepository.getSent(1L)).thenReturn(List.of(dto));

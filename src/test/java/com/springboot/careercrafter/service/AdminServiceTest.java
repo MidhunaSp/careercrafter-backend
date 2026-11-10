@@ -47,7 +47,7 @@ public class AdminServiceTest {
 
     // ---- add : valid ----
     @Test
-    public void addTest() {
+    void addTest() {
         AdminReqDto dto = new AdminReqDto("Admin1", "admin1", "pass1");
 
         User user = new User();
@@ -81,7 +81,7 @@ public class AdminServiceTest {
 
     // ---- add : username already taken ----
     @Test
-    public void addTest_UsernameTaken() {
+    void addTest_UsernameTaken() {
         AdminReqDto dto = new AdminReqDto("Admin One", "admin1", "pass1");
 
         when(userService.createUser("admin1", "pass1", Role.ADMIN))
@@ -98,7 +98,7 @@ public class AdminServiceTest {
 
     // ---- verifyEmployer : valid ----
     @Test
-    public void verifyEmployerTest() {
+    void verifyEmployerTest() {
         User adminUser = new User();
         adminUser.setUsername("admin1");
         Admin admin = new Admin();
@@ -135,7 +135,7 @@ public class AdminServiceTest {
 
     // ---- verifyEmployer : admin not found ----
     @Test
-    public void verifyEmployerTest_AdminNotFound() {
+    void verifyEmployerTest_AdminNotFound() {
         when(adminRepository.findById(7L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
@@ -151,7 +151,7 @@ public class AdminServiceTest {
 
     // ---- verifyEmployer : logged in user is not this admin ----
     @Test
-    public void verifyEmployerTest_NotOwner() {
+    void verifyEmployerTest_NotOwner() {
         User adminUser = new User();
         adminUser.setUsername("admin1");
         Admin admin = new Admin();
@@ -173,7 +173,7 @@ public class AdminServiceTest {
 
     // ---- verifyEmployer : employer not found ----
     @Test
-    public void verifyEmployerTest_EmployerNotFound() {
+    void verifyEmployerTest_EmployerNotFound() {
         User adminUser = new User();
         adminUser.setUsername("admin1");
         Admin admin = new Admin();
@@ -197,7 +197,7 @@ public class AdminServiceTest {
 
     // ---- verifyEmployer : employer already verified ----
     @Test
-    public void verifyEmployerTest_AlreadyVerified() {
+    void verifyEmployerTest_AlreadyVerified() {
         User adminUser = new User();
         adminUser.setUsername("admin1");
         Admin admin = new Admin();

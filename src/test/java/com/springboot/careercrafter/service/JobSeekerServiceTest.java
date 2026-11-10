@@ -42,7 +42,7 @@ public class JobSeekerServiceTest {
 
     // ---- add : valid ----
     @Test
-    public void addTest() {
+    void addTest() {
         JobSeekerReqDto dto = new JobSeekerReqDto("John Doe", "9876543210", "Chennai", "BE", "2 years", "Java", "john", "pass1");
 
         User user = new User();
@@ -74,7 +74,7 @@ public class JobSeekerServiceTest {
 
     // ---- add : username already taken ----
     @Test
-    public void addTest_UsernameTaken() {
+    void addTest_UsernameTaken() {
         JobSeekerReqDto dto = new JobSeekerReqDto("John Doe", "9876543210", "Chennai", "BE", "2 years", "Java", "john", "pass1");
 
         when(userService.createUser("john", "pass1", Role.JOB_SEEKER))
@@ -91,7 +91,7 @@ public class JobSeekerServiceTest {
 
     // ---- getAll ----
     @Test
-    public void getAllTest() {
+    void getAllTest() {
         JobSeeker js1 = new JobSeeker();
         js1.setId(1L);
         JobSeeker js2 = new JobSeeker();
@@ -113,7 +113,7 @@ public class JobSeekerServiceTest {
 
     // ---- getById : valid ----
     @Test
-    public void getByIdTest() {
+    void getByIdTest() {
         JobSeeker js = new JobSeeker();
         js.setId(1L);
         JobSeekerRespDto dto = new JobSeekerRespDto(1L, 1L, "John Doe", "9876543210", "Chennai", "BE", "2 years", "Java", "john",true);
@@ -131,7 +131,7 @@ public class JobSeekerServiceTest {
 
     // ---- getById : invalid ----
     @Test
-    public void getByIdTest_Invalid() {
+    void getByIdTest_Invalid() {
         when(jobSeekerRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> jobSeekerService.getById(99L));
@@ -142,7 +142,7 @@ public class JobSeekerServiceTest {
 
     // ---- getByUsername : valid ----
     @Test
-    public void getByUsernameTest() {
+    void getByUsernameTest() {
         JobSeeker js = new JobSeeker();
         js.setId(1L);
         JobSeekerRespDto dto = new JobSeekerRespDto(1L, 1L, "John Doe", "9876543210", "Chennai", "BE", "2 years", "Java", "john",true);
@@ -159,7 +159,7 @@ public class JobSeekerServiceTest {
 
     // ---- getByUsername : invalid ----
     @Test
-    public void getByUsernameTest_Invalid() {
+    void getByUsernameTest_Invalid() {
         when(jobSeekerRepository.findByUserUsername("nobody")).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> jobSeekerService.getByUsername("nobody"));
@@ -169,7 +169,7 @@ public class JobSeekerServiceTest {
 
     // ---- update : valid ----
     @Test
-    public void updateTest() {
+    void updateTest() {
         User user = new User();
         user.setUsername("john");
         JobSeeker js = new JobSeeker();
@@ -197,7 +197,7 @@ public class JobSeekerServiceTest {
 
     // ---- update : not the owner ----
     @Test
-    public void updateTest_NotOwner() {
+    void updateTest_NotOwner() {
         User user = new User();
         user.setUsername("john");
         JobSeeker js = new JobSeeker();
@@ -216,7 +216,7 @@ public class JobSeekerServiceTest {
 
     // ---- update : nothing to update ----
     @Test
-    public void updateTest_NothingToUpdate() {
+    void updateTest_NothingToUpdate() {
         User user = new User();
         user.setUsername("john");
         JobSeeker js = new JobSeeker();
@@ -235,7 +235,7 @@ public class JobSeekerServiceTest {
 
     // ---- deleteById : valid ----
     @Test
-    public void deleteByIdTest() {
+    void deleteByIdTest() {
         User user = new User();
         user.setUsername("john");
         JobSeeker js = new JobSeeker();
@@ -257,7 +257,7 @@ public class JobSeekerServiceTest {
 
     // ---- deleteById : not the owner ----
     @Test
-    public void deleteByIdTest_NotOwner() {
+    void deleteByIdTest_NotOwner() {
         User user = new User();
         user.setUsername("john");
         JobSeeker js = new JobSeeker();
@@ -275,7 +275,7 @@ public class JobSeekerServiceTest {
 
     // ---- deleteById : not found ----
     @Test
-    public void deleteByIdTest_NotFound() {
+    void deleteByIdTest_NotFound() {
         when(jobSeekerRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
@@ -286,7 +286,7 @@ public class JobSeekerServiceTest {
 
     // ---- filter : one page + pagination info ----
     @Test
-    public void filterTest() {
+    void filterTest() {
         JobSeeker js = new JobSeeker();
         js.setId(1L);
         JobSeekerRespDto dto = new JobSeekerRespDto(1L, 1L, "John", "9876543210", "Chennai", "BE",
