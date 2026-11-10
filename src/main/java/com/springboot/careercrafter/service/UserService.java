@@ -42,7 +42,7 @@ public class UserService {
         DetailsDto detailsDto = userRepository.getUserDetails(loggedInUsername);
         if (detailsDto == null)
             throw new ResourceNotFoundException(USER_NOT_FOUND);
-        if(!detailsDto.isActive())
+        if (!Boolean.TRUE.equals(detailsDto.isActive()))
             throw new InactiveUserException("User is disabled");
         return detailsDto;
     }
