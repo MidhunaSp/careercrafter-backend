@@ -21,12 +21,12 @@ function ApplicationTimeline({ application, userId, onClose }) {
                 setTimeline(response.data)
 
                 // job -> employer -> user id of the employer
-                const jobResp = await axios.get(`${API_SERVER_URL_DEV}/api/job/${application.jobId}`,
+                const jobResp = await axios.get(`${API_SERVER_URL_DEV}/api/job/v1/${application.jobId}`,
                     {
                         headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
                     })
                 const empResp = await axios.get(
-                    `${API_SERVER_URL_DEV}/api/employer/${jobResp.data.employerId}`,
+                    `${API_SERVER_URL_DEV}/api/employer/v1/${jobResp.data.employerId}`,
                     {
                         headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
                     })

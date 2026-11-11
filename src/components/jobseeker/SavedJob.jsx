@@ -91,7 +91,7 @@ function SavedJob() {
     const openJob = async (jobId) => {
         setErrMsg("")
         try {
-            const response = await axios.get(`${API_SERVER_URL_DEV}/api/job/${jobId}`,
+            const response = await axios.get(`${API_SERVER_URL_DEV}/api/job/v1/${jobId}`,
                 { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
             setSelectedJob(response.data)
         }

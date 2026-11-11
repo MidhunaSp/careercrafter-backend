@@ -64,7 +64,7 @@ function CandidateSearch() {
                 query.append("skills", skill)
             }
             try {
-                const response = await axios.get(`${API_SERVER_URL_DEV}/api/jobseeker/filter?${query.toString()}`,
+                const response = await axios.get(`${API_SERVER_URL_DEV}/api/jobseeker/filter/v2?${query.toString()}`,
                     {
                         headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
                     })
@@ -79,7 +79,7 @@ function CandidateSearch() {
         getCandidates()
     }, [name, location, skill, page])
 
-    // when a candidate is opened, load the resumes he has chosen to share with employers
+    // when a candidate is opened, load the resumes he/she has chosen to share with employers
     useEffect(() => {
         setSharedResumes([])
         setOpenResume(null)
@@ -93,7 +93,9 @@ function CandidateSearch() {
             try {
                 const resp = await axios.get(
                     `${API_SERVER_URL_DEV}/api/resume/shared/jobseeker/${selected.id}`,
-                    { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+                    {
+                        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                    })
                 if (!cancelled) {
                     setSharedResumes(resp.data)
                 }

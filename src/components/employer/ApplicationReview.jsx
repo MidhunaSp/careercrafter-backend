@@ -31,7 +31,7 @@ function ApplicationReview({ application, employerUserId, onStatusChanged, onClo
         setResumeLoading(true)
         setResumeErr(false)
 
-        axios.get(`${API_SERVER_URL_DEV}/api/jobseeker/${application.applicantId}`, { headers })
+        axios.get(`${API_SERVER_URL_DEV}/api/jobseeker/v1/${application.applicantId}`, { headers })
             .then(r => { if (!cancelled) setProfile(r.data) })
             .catch(() => { if (!cancelled) setErrMsg("Could not load the candidate profile") })
 

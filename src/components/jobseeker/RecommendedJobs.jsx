@@ -8,14 +8,17 @@ import { splitSkills } from "../../utils/profile"
 
 
 // the backend can answer with [{job, score, matchedSkills, locationMatch}] or with plain jobs, handle both
-const normalize = (data) => {
+const normalize = (data, js) => {
     const list = Array.isArray(data) ? data : (data && Array.isArray(data.content) ? data.content : [])
     const items = list.map(item => item.job
         ? { job: item.job, score: Number(item.score) || 0, matchedSkills: item.matchedSkills || [], locationMatch: !!item.locationMatch }
         : { job: item, score: 0, matchedSkills: [], locationMatch: false })
-    const top = Math.max(...items.map(i => i.score), 0)
-    // scores above 100 are points, turn them into a percentage of the best match
-    return items.map(i => ({ ...i, score: top > 100 ? Math.round(i.score * 100 / top) : Math.round(i.score) }))
+    // the backend score is a small count, so the percentage is the matched skills out of all skills in the profile
+    const total = splitSkills(js.skills).length
+    return items.map(i => ({
+        ...i,
+        score: total > 0 ? Math.min(100, Math.round(i.matchedSkills.length * 100 / total)) : 0
+    }))
 }
 
 // used when the backend gives no recommendations: score the open jobs with the skills and location in the profile
@@ -31,10 +34,10 @@ const scoreJobs = (jobs, js, industry, type) => {
             const jobPlace = (job.location || "").toLowerCase()
             const jobCity = jobPlace.split(",")[0].trim()
             const locationMatch = place !== "" && jobCity !== "" && (jobPlace.includes(place) || place.includes(jobCity))
-            const skillPart = skills.length === 0 ? 0 : (matchedSkills.length * 70) / skills.length
+            const skillPart = skills.length === 0 ? 0 : (matchedSkills.length * 60) / skills.length
             const industryMatch = industry.trim() !== "" && (job.industry || "").toLowerCase().includes(industry.trim().toLowerCase())
             const typeMatch = type !== "" && job.employmentType === type
-            const total = skillPart + (locationMatch ? 30 : 0) + (industryMatch ? 10 : 0) + (typeMatch ? 10 : 0)
+            const total = skillPart + (locationMatch ? 30 : 0) + (industryMatch ? 5 : 0) + (typeMatch ? 5 : 0)
             return { job, matchedSkills, locationMatch, score: Math.min(100, Math.round(total)) }
         })
         .filter(r => r.score > 0)
@@ -42,9 +45,9 @@ const scoreJobs = (jobs, js, industry, type) => {
         .slice(0, 10)
 }
 
-// recommendations from the backend (with the optional preferences), when that gives nothing the jobs are matched here
 const loadRecommended = async (js, industry, type) => {
     let result
+    let backendGaveJobs = false
     try {
         const response = await axios.get(
             `${API_SERVER_URL_DEV}/api/job/recommended/${js.id}`,
@@ -52,13 +55,19 @@ const loadRecommended = async (js, industry, type) => {
                 params: { limit: 10, industry: industry.trim() || undefined, type: type || undefined },
                 headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
             })
-        result = normalize(response.data)
+        result = normalize(response.data, js)
+        backendGaveJobs = result.length > 0
+        result = result.filter(r =>
+            (type === "" || r.job.employmentType === type) &&
+            (industry.trim() === "" || (r.job.industry || "").toLowerCase().includes(industry.trim().toLowerCase()))
+        )
     }
     catch {
         result = []
     }
-    if (result.length === 0) {
-        const jobsResp = await axios.get(`${API_SERVER_URL_DEV}/api/job/filter?page=0&size=200`)
+    // only use the browser scoring when the backend itself returned nothing
+    if (!backendGaveJobs) {
+        const jobsResp = await axios.get(`${API_SERVER_URL_DEV}/api/job/filter/v1?page=0&size=200`)
         result = scoreJobs(jobsResp.data.content || [], js, industry, type)
     }
     return result

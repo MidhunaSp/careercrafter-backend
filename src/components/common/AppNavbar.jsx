@@ -2,6 +2,8 @@ import axios from "axios"
 import { useEffect, useState } from "react"
 import { NavLink, useNavigate } from "react-router"
 import { API_SERVER_URL_DEV } from "../../../config"
+import { useDispatch } from "react-redux"
+import { CLEAR_RESUMES } from "../../store/actions/ResumeAction"
 
 const menus = {
     JOB_SEEKER: [
@@ -34,6 +36,7 @@ const profileUrls = {
 
 function AppNavbar({ role }) {
     const navigate = useNavigate()
+    const dispatch = useDispatch() 
     const rolePath = role === 'JOB_SEEKER' ? 'jobseeker' : role.toLowerCase()
 
     const [unread, setUnread] = useState({ notifications: 0, messages: 0 })
@@ -74,6 +77,7 @@ function AppNavbar({ role }) {
     }, [role])
 
     const logout = () => {
+        dispatch({ type: CLEAR_RESUMES }) 
         localStorage.clear()
         navigate("/")
     }

@@ -46,7 +46,7 @@ function JobSearch() {
                 return
             }
 
-            // step 2: job seeker, saved jobs and applications (for the marks), the jobs load page by page below
+            // step 2: job seeker, saved jobs and applications , the jobs load page by page below
             try {
                 const jsResp = await axios.get(
                     `${API_SERVER_URL_DEV}/api/jobseeker/by-username?username=${localStorage.getItem('username')}`,
@@ -104,7 +104,7 @@ function JobSearch() {
                 query.append("minSalary", minSalary)
             }
             try {
-                const response = await axios.get(`${API_SERVER_URL_DEV}/api/job/filter?${query.toString()}`)
+                const response = await axios.get(`${API_SERVER_URL_DEV}/api/job/filter/v1?${query.toString()}`)
                 setJobs(response.data.content)
                 setPaginationInfo(response.data.paginationInfo)
                 setErrMsg("")

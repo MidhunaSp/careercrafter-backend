@@ -7,6 +7,7 @@ import Notifications from "./components/common/Notifications"
 import AdminDashboard from "./components/admin/AdminDashboard"
 import AdminJobs from "./components/admin/AdminJobs"
 import AdminUsers from "./components/admin/AdminUsers"
+import AdminLayout from "./components/admin/AdminLayout"
 import EmployerDashboard from "./components/employer/EmployerDashboard"
 import EmployerProfile from "./components/employer/EmployerProfile"
 import Applicants from "./components/employer/Applicants"
@@ -25,9 +26,11 @@ function App() {
       <Route path="login" element={<Login />} />
       <Route path="signup" element={<Signup />} />
 
-      <Route path="admin" element={<AdminDashboard />} />
-      <Route path="admin/users" element={<AdminUsers />} />
-      <Route path="admin/jobs" element={<AdminJobs />} />
+      <Route path="admin" element={<AdminLayout />}>
+        <Route index element={<AdminDashboard />} />
+        <Route path="users" element={<AdminUsers />} />
+        <Route path="jobs" element={<AdminJobs />} />
+      </Route>
 
       <Route path="employer" element={<EmployerDashboard />} />
       <Route path="employer/applicants" element={<Applicants />} />

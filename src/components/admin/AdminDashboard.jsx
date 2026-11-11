@@ -7,7 +7,6 @@ import { getErrorMessage, useToast } from "../../utils/toast"
 import Widget from "../common/Widget"
 import DoughnutChart from "../common/DoughnutChart"
 import BarChart from "../common/HorizontalBarChart"
-import AppNavbar from "../common/AppNavbar"
 
 function AdminDashboard() {
 
@@ -20,9 +19,14 @@ function AdminDashboard() {
     const [statusStats, setStatusStats] = useState([])
     const [industryStats, setIndustryStats] = useState([])
     const [employerJobStats, setEmployerJobStats] = useState([])
-    
+
     useEffect(() => {
-        const authHeader = { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } }
+        const authHeader = {
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+
+            }
+        }
 
         const loadDashboard = async () => {
             // step 1: check that the user is logged in and has the right role
@@ -64,7 +68,7 @@ function AdminDashboard() {
             }
         }
         loadDashboard()
-        
+
     }, [navigate])
 
     // widget values
@@ -82,9 +86,6 @@ function AdminDashboard() {
     )
 
     return (
-        <div className="bg-body-tertiary min-vh-100">
-
-            <AppNavbar role="ADMIN" />
 
             <div className="container-fluid px-4 py-4">
 
@@ -171,7 +172,7 @@ function AdminDashboard() {
                 </div>
 
             </div>
-        </div>
+
     )
 }
 

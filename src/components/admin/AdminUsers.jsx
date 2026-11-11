@@ -1,10 +1,9 @@
 import axios from "axios"
 import { useEffect, useState } from "react"
-import { useLocation, useNavigate } from "react-router"
+import { useLocation } from "react-router"
 import { API_SERVER_URL_DEV, PAGE_SIZE } from "../../../config"
 import { splitSkills } from "../../utils/profile"
 import { getErrorMessage, useToast } from "../../utils/toast"
-import AppNavbar from "../common/AppNavbar"
 import Pagination from "../common/Pagination"
 import ReasonModal from "../common/ReasonModal"
 
@@ -20,11 +19,12 @@ const suspendPresets = [
 
 function AdminUsers() {
 
-    const navigate = useNavigate()
     const location = useLocation()
     const toast = useToast()
 
-    const authHeader = () => ({ headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+    const authHeader = () => ({
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+    })
 
     const [tab, setTab] = useState(location.state?.tab ? location.state.tab : "employers")
     const [admin, setAdmin] = useState(null)
@@ -47,26 +47,10 @@ function AdminUsers() {
     // the open reason dialog: { kind: 'suspend' | 'activate', username }
     const [dialog, setDialog] = useState(null)
 
+    // the login / role check is done once by AdminLayout, so here we only load the admin details
     useEffect(() => {
         const loadAdmin = async () => {
-            // step 1: check that the user is logged in and has the right role
-            if (!localStorage.getItem('token')) {
-                navigate("/login")
-                return
-            }
-            try {
-                const resp = await axios.get(API_SERVER_URL_DEV + '/api/auth/user-details', authHeader())
-                if (resp.data.role !== 'ADMIN') {
-                    navigate("/no-access")
-                    return
-                }
-            }
-            catch {
-                navigate("/no-access")
-                return
-            }
-
-            // step 2: the admin id is needed to verify employers
+            // the admin id is needed to verify employers
             try {
                 const adminResp = await axios.get(
                     `${API_SERVER_URL_DEV}/api/admin/by-username?username=${localStorage.getItem('username')}`, authHeader())
@@ -78,7 +62,7 @@ function AdminUsers() {
         }
         loadAdmin()
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [navigate])
+    }, [])
 
     // employers: runs when the filters, the page or refresh changes
     useEffect(() => {
@@ -100,6 +84,7 @@ function AdminUsers() {
             }
         }
         getEmployers()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [statusFilter, companySearch, employerPage, refresh])
 
     // job seekers
@@ -110,7 +95,7 @@ function AdminUsers() {
                 query.append("fullName", seekerSearch)
             }
             try {
-                const response = await axios.get(`${API_SERVER_URL_DEV}/api/jobseeker/filter?${query.toString()}`, authHeader())
+                const response = await axios.get(`${API_SERVER_URL_DEV}/api/jobseeker/filter/v1?${query.toString()}`, authHeader())
                 setJobSeekers(response.data.content)
                 setSeekerPaginationInfo(response.data.paginationInfo)
             }
@@ -119,7 +104,7 @@ function AdminUsers() {
             }
         }
         getJobSeekers()
-    
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [seekerSearch, seekerPage, refresh])
 
     const verifyEmployer = async (employer) => {
@@ -175,10 +160,7 @@ function AdminUsers() {
     )
 
     return (
-        <div className="bg-body-tertiary min-vh-100">
-
-            <AppNavbar role="ADMIN" />
-
+        <>
             <div className="container-fluid px-4 py-4">
 
                 <h3 className="fw-bold mb-3">Users</h3>
@@ -377,7 +359,7 @@ function AdminUsers() {
                     placeholder="Note (optional)"
                     onConfirm={confirmDialog} onClose={() => setDialog(null)} />
             )}
-        </div>
+        </>
     )
 }
 
