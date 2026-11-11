@@ -42,9 +42,11 @@ public class SecurityConfig {
                         // login API and user details API
                         .requestMatchers(HttpMethod.GET, "/api/auth/login").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/auth/user-details").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/job/all", "/api/job/filter/v1", "/api/job/v1/{id}", "/api/job/v2/{id}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/jobseeker/filter/v1", "/api/jobseeker/filter/v2").hasAnyAuthority(ADMIN, EMPLOYER)
 
                         // anyone can browse the jobs
-                        .requestMatchers(HttpMethod.GET, "/api/job/all", "/api/job/filter", "/api/job/{id}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/job/all", "/api/job/filter/v1", "/api/job/v1/{id}").permitAll()
 
                         // EMPLOYER stats
                         .requestMatchers(HttpMethod.GET, "/api/stats/employer/**").hasAuthority(EMPLOYER)
@@ -53,13 +55,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/employer/verify/**").hasAuthority(ADMIN)
                         .requestMatchers(HttpMethod.GET, "/api/stats/**").hasAuthority(ADMIN)
                         .requestMatchers(HttpMethod.GET, "/api/employer/all", "/api/employer/filter",
-                                "/api/employer/by-verification", "/api/jobseeker/all").hasAuthority(ADMIN)
+                                "/api/employer/verification/v1", "/api/jobseeker/all").hasAuthority(ADMIN)
                         .requestMatchers(HttpMethod.POST, "/api/notification/add/**").hasAuthority(ADMIN)
                         .requestMatchers(HttpMethod.GET, "/api/admin/by-username").hasAuthority(ADMIN)
                         .requestMatchers(HttpMethod.PUT, "/api/admin/user-status", "/api/admin/job/**").hasAuthority(ADMIN)
 
                         // ADMIN OR EMPLOYER (employer searches the candidates)
-                        .requestMatchers(HttpMethod.GET, "/api/jobseeker/filter").hasAnyAuthority(ADMIN, EMPLOYER)
+                        .requestMatchers(HttpMethod.GET, "/api/jobseeker/filter/v1").hasAnyAuthority(ADMIN, EMPLOYER)
 
                         // EMPLOYER
                         .requestMatchers(HttpMethod.POST, "/api/job/add/**").hasAuthority(EMPLOYER)

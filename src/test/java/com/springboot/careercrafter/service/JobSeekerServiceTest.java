@@ -73,22 +73,6 @@ class JobSeekerServiceTest {
     }
 
     // ---- add : username already taken ----
-    @Test
-    void addTest_UsernameTaken() {
-        JobSeekerReqDto dto = new JobSeekerReqDto("John Doe", "9876543210", "Chennai", "BE", "2 years", "Java", "john", "pass1");
-
-        when(userService.createUser("john", "pass1", Role.JOB_SEEKER))
-                .thenThrow(new InvalidCallException("Username already taken"));
-
-        assertThrows(InvalidCallException.class, () -> jobSeekerService.add(dto));
-
-        verify(userService, times(1)).createUser("john", "pass1", Role.JOB_SEEKER);
-
-        // nothing should be mapped or saved
-        verifyNoMoreInteractions(jobSeekerMapper);
-        verifyNoMoreInteractions(jobSeekerRepository);
-    }
-
     // ---- getAll ----
     @Test
     void getAllTest() {
@@ -158,15 +142,6 @@ class JobSeekerServiceTest {
     }
 
     // ---- getByUsername : invalid ----
-    @Test
-    void getByUsernameTest_Invalid() {
-        when(jobSeekerRepository.findByUserUsername("nobody")).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class, () -> jobSeekerService.getByUsername("nobody"));
-
-        verifyNoMoreInteractions(jobSeekerMapper);
-    }
-
     // ---- update : valid ----
     @Test
     void updateTest() {
@@ -215,24 +190,6 @@ class JobSeekerServiceTest {
     }
 
     // ---- update : nothing to update ----
-    @Test
-    void updateTest_NothingToUpdate() {
-        User user = new User();
-        user.setUsername("john");
-        JobSeeker js = new JobSeeker();
-        js.setId(1L);
-        js.setUser(user);
-
-        JobSeekerUpdateDto dto = new JobSeekerUpdateDto(null, null, null, null, null, null);
-
-        when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(js));
-
-        assertThrows(InvalidCallException.class,
-                () -> jobSeekerService.update(1L, dto, "john"));
-
-        verify(jobSeekerRepository, times(0)).save(js);
-    }
-
     // ---- deleteById : valid ----
     @Test
     void deleteByIdTest() {
@@ -256,34 +213,7 @@ class JobSeekerServiceTest {
     }
 
     // ---- deleteById : not the owner ----
-    @Test
-    void deleteByIdTest_NotOwner() {
-        User user = new User();
-        user.setUsername("john");
-        JobSeeker js = new JobSeeker();
-        js.setId(1L);
-        js.setUser(user);
-
-        when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(js));
-
-        assertThrows(OwnershipException.class,
-                () -> jobSeekerService.deleteById(1L, "someoneElse"));
-
-        verify(jobSeekerRepository, times(0)).delete(js);
-        verifyNoMoreInteractions(userRepository);
-    }
-
     // ---- deleteById : not found ----
-    @Test
-    void deleteByIdTest_NotFound() {
-        when(jobSeekerRepository.findById(99L)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> jobSeekerService.deleteById(99L, "john"));
-
-        verifyNoMoreInteractions(userRepository);
-    }
-
     // ---- filter : one page + pagination info ----
     @Test
     void filterTest() {

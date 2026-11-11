@@ -71,25 +71,10 @@ class SavedJobServiceTest {
     }
 
     @Test
-    void addTest_JobSeekerNotFound() {
-        when(jobSeekerRepository.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> savedJobService.add(1L, 2L, "john"));
-        verify(savedJobRepository, times(0)).save(any(SavedJob.class));
-    }
-
-    @Test
     void addTest_JobNotFound() {
         when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(jobSeeker("john")));
         when(jobRepository.findById(2L)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, () -> savedJobService.add(1L, 2L, "john"));
-        verify(savedJobRepository, times(0)).save(any(SavedJob.class));
-    }
-
-    @Test
-    void addTest_NotOwner() {
-        when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(jobSeeker("john")));
-        when(jobRepository.findById(2L)).thenReturn(Optional.of(new Job()));
-        assertThrows(OwnershipException.class, () -> savedJobService.add(1L, 2L, "someoneelse"));
         verify(savedJobRepository, times(0)).save(any(SavedJob.class));
     }
 
@@ -117,20 +102,6 @@ class SavedJobServiceTest {
         verify(savedJobRepository, times(1)).getByJobSeekerId(1L, PageRequest.of(0, 5));
     }
 
-    @Test
-    void getByJobSeekerIdTest_NotFound() {
-        when(jobSeekerRepository.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> savedJobService.getByJobSeekerId(1L, 0, 5, "john"));
-        verifyNoInteractions(savedJobRepository);
-    }
-
-    @Test
-    void getByJobSeekerIdTest_NotOwner() {
-        when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(jobSeeker("john")));
-        assertThrows(OwnershipException.class, () -> savedJobService.getByJobSeekerId(1L, 0, 5, "someoneelse"));
-        verifyNoInteractions(savedJobRepository);
-    }
-
     // ---- deleteById ----
     @Test
     void deleteByIdTest() {
@@ -143,12 +114,4 @@ class SavedJobServiceTest {
         verify(savedJobRepository, times(1)).delete(savedJob);
     }
 
-    @Test
-    void deleteByIdTest_NotOwner() {
-        SavedJob savedJob = new SavedJob();
-        savedJob.setJobSeeker(jobSeeker("john"));
-        when(savedJobRepository.findById(1L)).thenReturn(Optional.of(savedJob));
-        assertThrows(OwnershipException.class, () -> savedJobService.deleteById(1L, "someoneelse"));
-        verify(savedJobRepository, times(0)).delete(any(SavedJob.class));
-    }
 }

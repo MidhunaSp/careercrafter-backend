@@ -5,6 +5,7 @@ import com.springboot.careercrafter.dto.request.JobReqDto;
 import com.springboot.careercrafter.dto.response.CreatedRespDto;
 import com.springboot.careercrafter.dto.response.JobRespDto;
 import com.springboot.careercrafter.enums.EmploymentType;
+import com.springboot.careercrafter.exception.ResourceNotFoundException;
 import com.springboot.careercrafter.service.JobService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +34,8 @@ public class JobController {
         return jobService.getActiveJobs(page, size);
     }
 
-    @GetMapping("/api/job/filter")
+    // v1: Filter jobs
+    @GetMapping("/api/job/filter/v1")
     public PagedRespDto<JobRespDto> filter(@RequestParam(value = "location", required = false) String location,
                                            @RequestParam(value = "industry", required = false) String industry,
                                            @RequestParam(value = "employmentType", required = false) EmploymentType employmentType,
@@ -51,9 +53,20 @@ public class JobController {
         return jobService.getByEmployerId(employerId, page, size);
     }
 
-    @GetMapping("/api/job/{id}")
+    // v1: Get job by ID
+    @GetMapping("/api/job/v1/{id}")
     public JobRespDto getById(@PathVariable Long id) {
         return jobService.getById(id);
+    }
+
+    // v2: Get job by ID (closed jobs are not returned)
+    @GetMapping("/api/job/v2/{id}")
+    public JobRespDto getActiveById(@PathVariable Long id) {
+        JobRespDto job = jobService.getById(id);
+        if (!job.active()) {
+            throw new ResourceNotFoundException("This job is closed");
+        }
+        return job;
     }
 
     @PutMapping("/api/job/{id}")

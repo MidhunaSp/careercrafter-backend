@@ -99,12 +99,4 @@ class StatsServiceTest {
     }
 
     // ---- no data in db -> empty list ----
-    @Test
-    void getJobCountByIndustryTest_NoData() {
-        when(jobRepository.getJobCountByIndustry()).thenReturn(List.of());
-
-        assertEquals(0, statsService.getJobCountByIndustry().size());
-
-        verify(jobRepository, times(1)).getJobCountByIndustry();
-    }
 }

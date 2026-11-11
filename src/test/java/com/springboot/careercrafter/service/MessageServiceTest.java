@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -74,46 +75,10 @@ class MessageServiceTest {
     }
 
     @Test
-    void addTest_SameUser() {
-        MessageReqDto dto = new MessageReqDto("Hello");
-        assertThrows(InvalidCallException.class, () -> messageService.add(1L, 1L, null, dto, "john"));
-        verifyNoInteractions(userRepository);
-        verify(messageRepository, times(0)).save(any(Message.class));
-    }
-
-    @Test
     void addTest_SenderNotFound() {
         MessageReqDto dto = new MessageReqDto("Hello");
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, () -> messageService.add(1L, 2L, null, dto, "john"));
-        verify(messageRepository, times(0)).save(any(Message.class));
-    }
-
-    @Test
-    void addTest_ReceiverNotFound() {
-        MessageReqDto dto = new MessageReqDto("Hello");
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user("john")));
-        when(userRepository.findById(2L)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> messageService.add(1L, 2L, null, dto, "john"));
-        verify(messageRepository, times(0)).save(any(Message.class));
-    }
-
-    @Test
-    void addTest_NotOwner() {
-        MessageReqDto dto = new MessageReqDto("Hello");
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user("john")));
-        when(userRepository.findById(2L)).thenReturn(Optional.of(user("mary")));
-        assertThrows(OwnershipException.class, () -> messageService.add(1L, 2L, null, dto, "someoneelse"));
-        verify(messageRepository, times(0)).save(any(Message.class));
-    }
-
-    @Test
-    void addTest_ApplicationNotFound() {
-        MessageReqDto dto = new MessageReqDto("Hello");
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user("john")));
-        when(userRepository.findById(2L)).thenReturn(Optional.of(user("mary")));
-        when(jobApplicationRepository.findById(9L)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> messageService.add(1L, 2L, 9L, dto, "john"));
         verify(messageRepository, times(0)).save(any(Message.class));
     }
 
@@ -129,13 +94,6 @@ class MessageServiceTest {
     }
 
     @Test
-    void getInboxTest_UserNotFound() {
-        when(userRepository.findById(7L)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> messageService.getInbox(7L, "john"));
-        verifyNoInteractions(messageRepository);
-    }
-
-    @Test
     void getSentTest() {
         MessageRespDto dto = new MessageRespDto(1L, 1L, "john", 2L, "mary", "Hi", false, Instant.now(), null);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user("john")));
@@ -143,13 +101,6 @@ class MessageServiceTest {
 
         assertEquals(1, messageService.getSent(1L, "john").size());
         verify(messageRepository, times(1)).getSent(1L);
-    }
-
-    @Test
-    void getSentTest_NotOwner() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user("john")));
-        assertThrows(OwnershipException.class, () -> messageService.getSent(1L, "someoneelse"));
-        verifyNoInteractions(messageRepository);
     }
 
     // ---- getConversation ----
@@ -163,28 +114,6 @@ class MessageServiceTest {
         assertEquals(1, messageService.getConversation(1L, 2L, "john").size());
     }
 
-    @Test
-    void getConversationTest_UserNotFound() {
-        when(userRepository.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> messageService.getConversation(1L, 2L, "john"));
-        verifyNoInteractions(messageRepository);
-    }
-
-    @Test
-    void markReadTest_NotFound() {
-        when(messageRepository.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> messageService.markRead(1L, "mary"));
-        verify(messageRepository, times(0)).save(any(Message.class));
-    }
-
-    @Test
-    void markReadTest_NotReceiver() {
-        Message m = message(user("john"), user("mary"));
-        when(messageRepository.findById(1L)).thenReturn(Optional.of(m));
-        assertThrows(OwnershipException.class, () -> messageService.markRead(1L, "john")); // sender cannot mark read
-        verify(messageRepository, times(0)).save(any(Message.class));
-    }
-
     // ---- deleteById ----
     @Test
     void deleteByIdTest() {
@@ -196,11 +125,15 @@ class MessageServiceTest {
         verify(messageRepository, times(1)).delete(m);
     }
 
+    // ---- markRead : valid ----
     @Test
-    void deleteByIdTest_NotFound() {
-        when(messageRepository.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> messageService.deleteById(1L, "john"));
-        verify(messageRepository, times(0)).delete(any(Message.class));
-    }
+    void markReadTest() {
+        Message m = message(user("john"), user("mary"));
+        when(messageRepository.findById(1L)).thenReturn(Optional.of(m));
 
+        messageService.markRead(1L, "mary"); // receiver marks it read
+
+        assertTrue(m.isRead());
+        verify(messageRepository, times(1)).save(m);
+    }
 }

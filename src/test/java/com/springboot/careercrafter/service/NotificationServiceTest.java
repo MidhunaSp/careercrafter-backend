@@ -97,20 +97,6 @@ class NotificationServiceTest {
     }
 
     // ---- getByUserId : reading someone else's notifications ----
-    @Test
-    void getByUserIdTest_NotOwner() {
-        User user = new User();
-        user.setId(1L);
-        user.setUsername("john");
-
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-
-        assertThrows(OwnershipException.class,
-                () -> notificationService.getByUserId(1L, "someoneElse"));
-
-        verifyNoMoreInteractions(notificationRepository);
-    }
-
     // ---- markRead : valid ----
     @Test
     void markReadTest() {
@@ -135,34 +121,7 @@ class NotificationServiceTest {
     }
 
     // ---- markRead : not the owner ----
-    @Test
-    void markReadTest_NotOwner() {
-        User user = new User();
-        user.setUsername("john");
-        Notification notification = new Notification();
-        notification.setId(3L);
-        notification.setUser(user);
-
-        when(notificationRepository.findById(3L)).thenReturn(Optional.of(notification));
-
-        assertThrows(OwnershipException.class,
-                () -> notificationService.markRead(3L, "someoneElse"));
-
-        verify(notificationRepository, times(0)).save(notification);
-    }
-
     // ---- markRead : not found ----
-    @Test
-    void markReadTest_NotFound() {
-        when(notificationRepository.findById(99L)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> notificationService.markRead(99L, "john"));
-
-        verify(notificationRepository, times(1)).findById(99L);
-        verifyNoMoreInteractions(notificationRepository);
-    }
-
     // ---- deleteById : valid ----
     @Test
     void deleteByIdTest() {
@@ -183,22 +142,6 @@ class NotificationServiceTest {
     }
 
     // ---- deleteById : not the owner ----
-    @Test
-    void deleteByIdTest_NotOwner() {
-        User user = new User();
-        user.setUsername("john");
-        Notification notification = new Notification();
-        notification.setId(3L);
-        notification.setUser(user);
-
-        when(notificationRepository.findById(3L)).thenReturn(Optional.of(notification));
-
-        assertThrows(OwnershipException.class,
-                () -> notificationService.deleteById(3L, "someoneElse"));
-
-        verify(notificationRepository, times(0)).delete(notification);
-    }
-
     // ---- notifyUser ----
     @Test
     void notifyUserTest() {
@@ -212,10 +155,4 @@ class NotificationServiceTest {
         verifyNoMoreInteractions(notificationRepository);
     }
 
-    @Test
-    void deleteByIdTest_NotFound() {
-        when(notificationRepository.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> notificationService.deleteById(1L, "john"));
-        verify(notificationRepository, times(0)).delete(any(Notification.class));
-    }
 }

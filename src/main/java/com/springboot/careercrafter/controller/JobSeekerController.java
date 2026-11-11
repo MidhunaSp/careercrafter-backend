@@ -1,10 +1,12 @@
 package com.springboot.careercrafter.controller;
 
+import com.springboot.careercrafter.dto.response.JobRespDto;
 import com.springboot.careercrafter.dto.response.PagedRespDto;
 import com.springboot.careercrafter.dto.request.JobSeekerReqDto;
 import com.springboot.careercrafter.dto.request.JobSeekerUpdateDto;
 import com.springboot.careercrafter.dto.response.CreatedRespDto;
 import com.springboot.careercrafter.dto.response.JobSeekerRespDto;
+import com.springboot.careercrafter.exception.ResourceNotFoundException;
 import com.springboot.careercrafter.service.JobSeekerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,12 +37,14 @@ public class JobSeekerController {
         return jobSeekerService.getByUsername(username);
     }
 
-    @GetMapping("/api/jobseeker/{id}")
+    // v1: Get jobseeker by ID
+    @GetMapping("/api/jobseeker/v1/{id}")
     public JobSeekerRespDto getById(@PathVariable Long id) {
         return jobSeekerService.getById(id);
     }
 
-    @GetMapping("/api/jobseeker/filter")
+    // v1: Filter job seekers
+    @GetMapping("/api/jobseeker/filter/v1")
     public PagedRespDto<JobSeekerRespDto> filter(
             @RequestParam(value = "fullName", required = false) String fullName,
             @RequestParam(value = "location", required = false) String location,
@@ -48,6 +52,21 @@ public class JobSeekerController {
             @RequestParam(value = "education", required = false) String education,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
+        return jobSeekerService.filter(fullName, location, skills, education, page, size);
+    }
+
+    // v2: Filter jobseekers (page size is limited to 20)
+    @GetMapping("/api/jobseeker/filter/v2")
+    public PagedRespDto<JobSeekerRespDto> filterV2(
+            @RequestParam(value = "fullName", required = false) String fullName,
+            @RequestParam(value = "location", required = false) String location,
+            @RequestParam(value = "skills", required = false) String skills,
+            @RequestParam(value = "education", required = false) String education,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        if (size > 20) {
+            size = 20;
+        }
         return jobSeekerService.filter(fullName, location, skills, education, page, size);
     }
 

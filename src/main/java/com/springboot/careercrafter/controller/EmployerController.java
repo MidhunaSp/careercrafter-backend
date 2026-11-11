@@ -46,12 +46,15 @@ public class EmployerController {
         return employerService.getByUsername(username);
     }
 
-    @GetMapping("/api/employer/by-verification")
-    public List<EmployerRespDto> getByVerificationStatus(@RequestParam("status") VerificationStatus status) {
+    // v1: Get employers by verification status
+    @GetMapping("/api/employer/verification/v1")
+    public List<EmployerRespDto> getByVerificationStatus(
+            @RequestParam("status") VerificationStatus status) {
         return employerService.getByVerificationStatus(status);
     }
 
-    @GetMapping("/api/employer/{id}")
+    // v1: Get employer by ID
+    @GetMapping("/api/employer/v1/{id}")
     public EmployerRespDto getById(@PathVariable Long id) {
         return employerService.getById(id);
     }

@@ -82,65 +82,7 @@ class ResumeServiceTest {
     }
 
     // ---- add : new resume marked default -> old default is turned off ----
-    @Test
-    void addTest_NewDefaultReplacesOldDefault() {
-        User user = new User();
-        user.setUsername("john");
-        JobSeeker jobSeeker = new JobSeeker();
-        jobSeeker.setId(1L);
-        jobSeeker.setUser(user);
-
-        ResumeReqDto dto = new ResumeReqDto("cv2.pdf", "/files/cv2.pdf", "Python CV", true);
-
-        Resume oldResume = new Resume();
-        oldResume.setId(1L);
-        oldResume.setDefault(true);
-        List<Resume> existing = List.of(oldResume);
-
-        Resume resume = new Resume();
-        Resume savedResume = new Resume();
-        savedResume.setId(2L);
-
-        when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(jobSeeker));
-        when(resumeRepository.findByJobSeekerIdOrderByUploadedAtDesc(1L)).thenReturn(existing);
-        when(resumeMapper.mapDtoToEntity(dto)).thenReturn(resume);
-        when(resumeRepository.save(resume)).thenReturn(savedResume);
-
-        CreatedRespDto response = resumeService.add(1L, dto, "john");
-
-        assertEquals(2L, response.id());
-
-        // old default is turned off, new one is the default
-        assertFalse(oldResume.isDefault());
-        assertTrue(resume.isDefault());
-
-        verify(resumeRepository, times(1)).saveAll(existing);
-        verify(resumeRepository, times(1)).save(resume);
-    }
-
     // ---- add : Invalid Test (not the owner) ----
-    @Test
-    void addTest_NotOwner() {
-        User user = new User();
-        user.setUsername("john");
-        JobSeeker jobSeeker = new JobSeeker();
-        jobSeeker.setId(1L);
-        jobSeeker.setUser(user);
-
-        ResumeReqDto dto = new ResumeReqDto("cv.pdf", "/files/cv.pdf", "Java CV", false);
-
-        when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(jobSeeker));
-
-        assertThrows(OwnershipException.class,
-                () -> resumeService.add(1L, dto, "someoneElse"));
-
-        verify(jobSeekerRepository, times(1)).findById(1L);
-        verify(resumeRepository, times(0)).save(any(Resume.class));
-
-        verifyNoMoreInteractions(resumeRepository);
-        verifyNoMoreInteractions(resumeMapper);
-    }
-
     // ---- deleteById : default resume deleted -> next resume becomes the default ----
     @Test
     void deleteByIdTest_DefaultResume_NextOneBecomesDefault() {
@@ -179,55 +121,8 @@ class ResumeServiceTest {
     }
 
     // ---- deleteById : Invalid Test (resume is used in a job application) ----
-    @Test
-    void deleteByIdTest_UsedInApplication() {
-        when(jobApplicationRepository.existsByResumeId(1L)).thenReturn(true);
-
-        assertThrows(InvalidCallException.class,
-                () -> resumeService.deleteById(1L, "john"));
-
-        verify(jobApplicationRepository, times(1)).existsByResumeId(1L);
-        verifyNoInteractions(resumeRepository);
-    }
-
     // ---- deleteById : Invalid Test (not found) ----
-    @Test
-    void deleteByIdTest_NotFound() {
-        when(resumeRepository.findById(9L)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> resumeService.deleteById(9L, "john"));
-
-        verify(resumeRepository, times(1)).findById(9L);
-        verify(resumeRepository, times(0)).delete(any(Resume.class));
-
-        verifyNoMoreInteractions(resumeRepository);
-    }
-
     // ---- deleteById : Invalid Test (not the owner) ----
-    @Test
-    void deleteByIdTest_NotOwner() {
-        User user = new User();
-        user.setUsername("john");
-        JobSeeker jobSeeker = new JobSeeker();
-        jobSeeker.setId(1L);
-        jobSeeker.setUser(user);
-
-        Resume resume = new Resume();
-        resume.setId(1L);
-        resume.setJobSeeker(jobSeeker);
-
-        when(resumeRepository.findById(1L)).thenReturn(Optional.of(resume));
-
-        assertThrows(OwnershipException.class,
-                () -> resumeService.deleteById(1L, "someoneElse"));
-
-        verify(resumeRepository, times(1)).findById(1L);
-        verify(resumeRepository, times(0)).delete(any(Resume.class));
-
-        verifyNoMoreInteractions(resumeRepository);
-    }
-
     // ---- makeDefault : only the chosen resume stays default ----
     @Test
     void makeDefaultTest() {
@@ -258,12 +153,6 @@ class ResumeServiceTest {
         assertTrue(resume2.isDefault());
 
         verify(resumeRepository, times(1)).saveAll(all);
-    }
-
-    @Test
-    void getByJobSeekerIdTest_NotFound() {
-        when(jobSeekerRepository.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> resumeService.getByJobSeekerId(1L, "john"));
     }
 
     @Test

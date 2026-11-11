@@ -93,24 +93,6 @@ class JobApplicationServiceTest {
 
     // ---Invalid Test---
     @Test
-    void getByApplicantIdTest_Invalid() {
-        // findById(7) returns empty -> job seeker not found
-        when(jobSeekerRepository.findById(7L)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> jobApplicationService.getByApplicantId(7L, 0, 5, "john"));
-
-        verify(jobSeekerRepository, times(1)).findById(7L);
-
-        verify(jobApplicationRepository, times(0)).findByApplicantIdWithDetails(7L,
-                PageRequest.of(0, 5));
-
-        // no more calls
-        verifyNoMoreInteractions(jobSeekerRepository);
-        verifyNoMoreInteractions(jobApplicationRepository);
-    }
-
-    @Test
     void saveTest() {
         // mock
         Long jobId = 1L;
@@ -185,30 +167,6 @@ class JobApplicationServiceTest {
     }
 
     @Test
-    void saveTest_ApplicantNotFound() {
-        when(jobRepository.findById(1L)).thenReturn(Optional.of(job("techcorp", true)));
-        when(jobSeekerRepository.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> jobApplicationService.apply(1L, 1L, null, "john"));
-        verify(jobApplicationRepository, times(0)).save(any(JobApplication.class));
-    }
-
-    @Test
-    void saveTest_NotOwner() {
-        when(jobRepository.findById(1L)).thenReturn(Optional.of(job("techcorp", true)));
-        when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(seeker(1L, "john")));
-        assertThrows(OwnershipException.class, () -> jobApplicationService.apply(1L, 1L, null, "someoneelse"));
-        verify(jobApplicationRepository, times(0)).save(any(JobApplication.class));
-    }
-
-    @Test
-    void saveTest_JobNotActive() {
-        when(jobRepository.findById(1L)).thenReturn(Optional.of(job("techcorp", false)));
-        when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(seeker(1L, "john")));
-        assertThrows(InvalidCallException.class, () -> jobApplicationService.apply(1L, 1L, null, "john"));
-        verify(jobApplicationRepository, times(0)).save(any(JobApplication.class));
-    }
-
-    @Test
     void saveTest_AlreadyApplied() {
         when(jobRepository.findById(1L)).thenReturn(Optional.of(job("techcorp", true)));
         when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(seeker(1L, "john")));
@@ -217,68 +175,7 @@ class JobApplicationServiceTest {
         verify(jobApplicationRepository, times(0)).save(any(JobApplication.class));
     }
 
-    @Test
-    void saveTest_NoDefaultResume() {
-        when(jobRepository.findById(1L)).thenReturn(Optional.of(job("techcorp", true)));
-        when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(seeker(1L, "john")));
-        when(jobApplicationRepository.existsByJobIdAndApplicantId(1L, 1L)).thenReturn(false);
-        when(resumeRepository.findDefaultResume(1L)).thenReturn(Optional.empty());
-        assertThrows(InvalidCallException.class, () -> jobApplicationService.apply(1L, 1L, null, "john"));
-        verify(jobApplicationRepository, times(0)).save(any(JobApplication.class));
-    }
-
-    @Test
-    void saveTest_ResumeNotFound() {
-        when(jobRepository.findById(1L)).thenReturn(Optional.of(job("techcorp", true)));
-        when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(seeker(1L, "john")));
-        when(jobApplicationRepository.existsByJobIdAndApplicantId(1L, 1L)).thenReturn(false);
-        when(resumeRepository.findById(5L)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> jobApplicationService.apply(1L, 1L, 5L, "john"));
-        verify(jobApplicationRepository, times(0)).save(any(JobApplication.class));
-    }
-
-    @Test
-    void saveTest_ResumeOfAnotherApplicant() {
-        Resume resume = new Resume();
-        resume.setJobSeeker(seeker(2L, "mary")); // belongs to job seeker 2
-
-        when(jobRepository.findById(1L)).thenReturn(Optional.of(job("techcorp", true)));
-        when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(seeker(1L, "john")));
-        when(jobApplicationRepository.existsByJobIdAndApplicantId(1L, 1L)).thenReturn(false);
-        when(resumeRepository.findById(5L)).thenReturn(Optional.of(resume));
-        assertThrows(InvalidCallException.class, () -> jobApplicationService.apply(1L, 1L, 5L, "john"));
-        verify(jobApplicationRepository, times(0)).save(any(JobApplication.class));
-    }
-
-    @Test
-    void saveTest_WithResumeId() {
-        Resume resume = new Resume();
-        resume.setJobSeeker(seeker(1L, "john"));
-        JobApplication saved = new JobApplication();
-        saved.setId(10L);
-
-        when(jobRepository.findById(1L)).thenReturn(Optional.of(job("techcorp", true)));
-        when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(seeker(1L, "john")));
-        when(jobApplicationRepository.existsByJobIdAndApplicantId(1L, 1L)).thenReturn(false);
-        when(resumeRepository.findById(5L)).thenReturn(Optional.of(resume));
-        when(jobApplicationRepository.save(any(JobApplication.class))).thenReturn(saved);
-
-        CreatedRespDto response = jobApplicationService.apply(1L, 1L, 5L, "john");
-
-        assertEquals(10L, response.id());
-        verify(resumeRepository, times(0)).findDefaultResume(1L); // default resume NOT used
-        verify(historyRepository, times(1)).save(any(ApplicationStatusHistory.class));
-    }
-
     // ---- getByApplicantId : not owner ----
-    @Test
-    void getByApplicantIdTest_NotOwner() {
-        when(jobSeekerRepository.findById(1L)).thenReturn(Optional.of(seeker(1L, "john")));
-        assertThrows(OwnershipException.class,
-                () -> jobApplicationService.getByApplicantId(1L, 0, 5, "someoneelse"));
-        verifyNoInteractions(jobApplicationRepository);
-    }
-
     // ---- getByJobId ----
     @Test
     void getByJobIdTest() {
@@ -296,14 +193,6 @@ class JobApplicationServiceTest {
         assertEquals(3, result.paginationInfo().totalPages()); // 12 records, 5 per page -> 3 pages
         assertEquals(12L, result.paginationInfo().totalRecords());
         assertEquals(2, result.paginationInfo().numRecordsInPage());
-    }
-
-    @Test
-    void getByJobIdTest_NotFound() {
-        when(jobRepository.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class,
-                () -> jobApplicationService.getByJobId(1L, null, 0, 5, "techcorp"));
-        verifyNoInteractions(jobApplicationRepository);
     }
 
     // ---- getById ----

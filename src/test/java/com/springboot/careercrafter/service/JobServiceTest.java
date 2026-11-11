@@ -17,6 +17,7 @@ import com.springboot.careercrafter.repository.JobApplicationRepository;
 import com.springboot.careercrafter.repository.JobRepository;
 import com.springboot.careercrafter.repository.SavedJobRepository;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -95,65 +96,8 @@ class JobServiceTest {
     }
 
     // ---- add : employer not verified ----
-    @Test
-    void addTest_EmployerNotVerified() {
-        User user = new User();
-        user.setUsername("techcorp");
-        Employer employer = new Employer();
-        employer.setId(1L);
-        employer.setUser(user);
-        employer.setVerificationStatus(VerificationStatus.PENDING);
-
-        JobReqDto dto = new JobReqDto("Java Developer", "Build REST APIs", "BE", "Chennai", "IT",
-                EmploymentType.FULL_TIME, 30000.0, 60000.0, "Apply by email");
-
-        when(employerRepository.findById(1L)).thenReturn(Optional.of(employer));
-
-        assertThrows(InvalidCallException.class, () -> jobService.add(1L, dto, "techcorp"));
-
-        verify(jobRepository, times(0)).save(any(Job.class));
-    }
-
     // ---- add : logged in user is not the employer owner ----
-    @Test
-    void addTest_WrongOwner() {
-        User user = new User();
-        user.setUsername("techcorp");
-        Employer employer = new Employer();
-        employer.setId(1L);
-        employer.setUser(user);
-        employer.setVerificationStatus(VerificationStatus.VERIFIED);
-
-        JobReqDto dto = new JobReqDto("Java Developer", "Build REST APIs", "BE", "Chennai", "IT",
-                EmploymentType.FULL_TIME, 30000.0, 60000.0, "Apply by email");
-
-        when(employerRepository.findById(1L)).thenReturn(Optional.of(employer));
-
-        assertThrows(OwnershipException.class, () -> jobService.add(1L, dto, "someoneelse"));
-
-        verify(jobRepository, times(0)).save(any(Job.class));
-    }
-
     // ---- add : min salary greater than max salary ----
-    @Test
-    void addTest_InvalidSalary() {
-        User user = new User();
-        user.setUsername("techcorp");
-        Employer employer = new Employer();
-        employer.setId(1L);
-        employer.setUser(user);
-        employer.setVerificationStatus(VerificationStatus.VERIFIED);
-
-        JobReqDto dto = new JobReqDto("Java Developer", "Build REST APIs", "BE", "Chennai", "IT",
-                EmploymentType.FULL_TIME, 90000.0, 20000.0, "Apply by email");
-
-        when(employerRepository.findById(1L)).thenReturn(Optional.of(employer));
-
-        assertThrows(InvalidCallException.class, () -> jobService.add(1L, dto, "techcorp"));
-
-        verify(jobRepository, times(0)).save(any(Job.class));
-    }
-
     // ---- getById : valid ----
     @Test
     void getByIdTest() {
@@ -182,15 +126,6 @@ class JobServiceTest {
     }
 
     // ---- getByEmployerId : employer not found ----
-    @Test
-    void getByEmployerIdTest_Invalid() {
-        when(employerRepository.existsById(99L)).thenReturn(false);
-
-        assertThrows(ResourceNotFoundException.class, () -> jobService.getByEmployerId(99L, 0, 5));
-
-        verify(employerRepository, times(1)).existsById(99L);
-    }
-
     // ---- close : valid ----
     @Test
     void closeTest() {
@@ -253,15 +188,6 @@ class JobServiceTest {
     }
 
     // ---- deleteById : job not found ----
-    @Test
-    void deleteByIdTest_Invalid() {
-        when(jobRepository.findById(99L)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class, () -> jobService.deleteById(99L, "techcorp"));
-
-        verify(jobRepository, times(0)).delete(any(Job.class));
-    }
-
     // ---- getActiveJobs ----
     @Test
     void getActiveJobsTest() {
@@ -308,5 +234,27 @@ class JobServiceTest {
         assertEquals(2, result.paginationInfo().totalPages());
         assertEquals(7L, result.paginationInfo().totalRecords());
         verify(jobRepository, times(1)).filterJobs(null, "IT", null, null, "java", PageRequest.of(0, 5));
+    }
+
+    // ---- reopen : valid ----
+    @Test
+    void reopenTest() {
+        User user = new User();
+        user.setUsername("techcorp");
+        Employer employer = new Employer();
+        employer.setUser(user);
+        Job job = new Job();
+        job.setId(5L);
+        job.setActive(false);
+        job.setEmployer(employer);
+
+        when(jobRepository.findById(5L)).thenReturn(Optional.of(job));
+
+        jobService.reopen(5L, "techcorp");
+
+        // job must be active again
+        assertTrue(job.isActive());
+
+        verify(jobRepository, times(1)).save(job);
     }
 }

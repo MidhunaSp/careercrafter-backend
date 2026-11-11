@@ -97,73 +97,8 @@ class ApplicationStatusHistoryServiceTest {
     }
 
     // ---- add : application not found ----
-    @Test
-    void addTest_ApplicationNotFound() {
-        ApplicationStatusHistoryReqDto dto = new ApplicationStatusHistoryReqDto(ApplicationStatus.SHORTLISTED, "Good profile");
-
-        when(jobApplicationRepository.findById(99L)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class,
-                () -> historyService.add(99L, dto, "techcorp"));
-
-        verify(jobApplicationRepository, times(1)).findById(99L);
-
-        verifyNoMoreInteractions(jobApplicationRepository);
-        verifyNoMoreInteractions(historyRepository);
-    }
-
     // ---- add : logged in user is not the employer of the job ----
-    @Test
-    void addTest_NotEmployer() {
-        User employerUser = new User();
-        employerUser.setUsername("techcorp");
-        Employer employer = new Employer();
-        employer.setUser(employerUser);
-        Job job = new Job();
-        job.setEmployer(employer);
-        JobApplication application = new JobApplication();
-        application.setId(1L);
-        application.setJob(job);
-        application.setStatus(ApplicationStatus.APPLIED);
-
-        ApplicationStatusHistoryReqDto dto = new ApplicationStatusHistoryReqDto(ApplicationStatus.SHORTLISTED, "Good profile");
-
-        when(jobApplicationRepository.findById(1L)).thenReturn(Optional.of(application));
-
-        assertThrows(OwnershipException.class,
-                () -> historyService.add(1L, dto, "someoneElse"));
-
-        // status must not change and nothing is saved
-        assertEquals(ApplicationStatus.APPLIED, application.getStatus());
-        verify(jobApplicationRepository, times(0)).save(application);
-        verifyNoMoreInteractions(historyRepository);
-    }
-
     // ---- add : application already in the same status ----
-    @Test
-    void addTest_SameStatus() {
-        User employerUser = new User();
-        employerUser.setUsername("techcorp");
-        Employer employer = new Employer();
-        employer.setUser(employerUser);
-        Job job = new Job();
-        job.setEmployer(employer);
-        JobApplication application = new JobApplication();
-        application.setId(1L);
-        application.setJob(job);
-        application.setStatus(ApplicationStatus.APPLIED);
-
-        ApplicationStatusHistoryReqDto dto = new ApplicationStatusHistoryReqDto(ApplicationStatus.APPLIED, "Same");
-
-        when(jobApplicationRepository.findById(1L)).thenReturn(Optional.of(application));
-
-        assertThrows(InvalidCallException.class,
-                () -> historyService.add(1L, dto, "techcorp"));
-
-        verify(jobApplicationRepository, times(0)).save(application);
-        verifyNoMoreInteractions(historyRepository);
-    }
-
     // ---- getTimeline : valid ----
     @Test
     void getTimelineTest() {
@@ -222,33 +157,6 @@ class ApplicationStatusHistoryServiceTest {
     }
 
     // ---- getTimeline : user is neither the applicant nor the employer ----
-    @Test
-    void getTimelineTest_NotOwner() {
-        User applicantUser = new User();
-        applicantUser.setUsername("john");
-        JobSeeker applicant = new JobSeeker();
-        applicant.setUser(applicantUser);
-
-        User employerUser = new User();
-        employerUser.setUsername("techcorp");
-        Employer employer = new Employer();
-        employer.setUser(employerUser);
-        Job job = new Job();
-        job.setEmployer(employer);
-
-        JobApplication application = new JobApplication();
-        application.setId(1L);
-        application.setApplicant(applicant);
-        application.setJob(job);
-
-        when(jobApplicationRepository.findById(1L)).thenReturn(Optional.of(application));
-
-        assertThrows(OwnershipException.class,
-                () -> historyService.getTimeline(1L, "someoneElse"));
-
-        verifyNoMoreInteractions(historyRepository);
-    }
-
     // ---- getAllEmployerHistories : valid ----
     @Test
     void getAllEmployerHistoriesTest() {

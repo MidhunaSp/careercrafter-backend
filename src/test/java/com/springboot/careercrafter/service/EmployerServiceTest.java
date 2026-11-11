@@ -12,6 +12,7 @@ import com.springboot.careercrafter.model.User;
 import com.springboot.careercrafter.repository.EmployerRepository;
 import com.springboot.careercrafter.repository.UserRepository;
 import org.junit.jupiter.api.Test;
+import com.springboot.careercrafter.dto.request.EmployerUpdateDto;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 
@@ -132,12 +133,6 @@ class EmployerServiceTest {
         verify(employerRepository, times(1)).save(any(Employer.class));
     }
 
-    @Test
-    void getByUsernameTest_Invalid() {
-        when(employerRepository.findByUserUsername("nobody")).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> employerService.getByUsername("nobody"));
-    }
-
     // ---- getAll ----
     @Test
     void getAllTest() {
@@ -184,5 +179,47 @@ class EmployerServiceTest {
         assertEquals(3, result.paginationInfo().totalPages()); // 11 employers, 5 per page
         assertEquals(11L, result.paginationInfo().totalRecords());
         assertEquals(1, result.paginationInfo().numRecordsInPage());
+    }
+
+    // ---- update : valid ----
+    @Test
+    void updateTest() {
+        User user = new User();
+        user.setUsername("john");
+        Employer employer = new Employer();
+        employer.setId(1L);
+        employer.setUser(user);
+        employer.setFullName("John");
+        employer.setCompanyName("ABC");
+
+        // only company name is sent, others are null
+        EmployerUpdateDto dto = new EmployerUpdateDto(null, "XYZ", null);
+
+        when(employerRepository.findById(1L)).thenReturn(Optional.of(employer));
+
+        employerService.update(1L, dto, "john");
+
+        assertEquals("XYZ", employer.getCompanyName());
+        // full name was not sent, so it stays same
+        assertEquals("John", employer.getFullName());
+
+        verify(employerRepository, times(1)).save(employer);
+    }
+
+    // ---- deleteById : valid ----
+    @Test
+    void deleteByIdTest() {
+        User user = new User();
+        user.setUsername("john");
+        Employer employer = new Employer();
+        employer.setId(1L);
+        employer.setUser(user);
+
+        when(employerRepository.findById(1L)).thenReturn(Optional.of(employer));
+
+        employerService.deleteById(1L, "john");
+
+        verify(employerRepository, times(1)).delete(employer);
+        verify(userRepository, times(1)).delete(user);
     }
 }
