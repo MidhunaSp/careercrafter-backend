@@ -2,7 +2,6 @@ import axios from "axios"
 import { useEffect, useState } from "react"
 import { API_SERVER_URL_DEV } from "../../../config"
 
-// shows the pdf of a resume inside the page.
 function ResumeViewer({ apiPath, fileName, filePath }) {
 
     const [url, setUrl] = useState(null)
@@ -32,7 +31,7 @@ function ResumeViewer({ apiPath, fileName, filePath }) {
                 if (cancelled) {
                     return
                 }
-                // with responseType blob, the error body also comes as a blob, so read it as text
+
                 let msg = "The resume file could not be loaded."
                 const status = err?.response?.status
                 try {

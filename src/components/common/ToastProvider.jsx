@@ -18,7 +18,7 @@ function ToastProvider({ children }) {
 
     const show = useCallback((kind, message) => {
         const id = nextId.current++
-        setToasts(current => [...current.slice(-4), { id, kind, message }])   
+        setToasts(current => [...current.slice(-4), { id, kind, message }])
         setTimeout(() => remove(id), kinds[kind].time)
     }, [remove])
 
@@ -33,7 +33,7 @@ function ToastProvider({ children }) {
         <ToastContext.Provider value={api}>
             {children}
 
-            <div className="toast-container position-fixed top-0 end-0 p-3" style={{ zIndex: 2000 }}
+            <div className="toast-container position-fixed top-0 end-0 p-3"
                 aria-live="polite" aria-atomic="true">
                 {toasts.map(t => (
                     <div key={t.id} role={t.kind === 'error' ? 'alert' : 'status'}

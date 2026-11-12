@@ -46,7 +46,6 @@ function JobSearch() {
                 return
             }
 
-            // step 2: job seeker, saved jobs and applications , the jobs load page by page below
             try {
                 const jsResp = await axios.get(
                     `${API_SERVER_URL_DEV}/api/jobseeker/by-username?username=${localStorage.getItem('username')}`,
@@ -145,7 +144,6 @@ function JobSearch() {
         }
     }
 
-    // the job gets the Applied mark without loading the page again
     const onApplied = async () => {
         const appResp = await axios.get(
             `${API_SERVER_URL_DEV}/api/jobApplication/applicant/${jobSeeker.id}?page=0&size=1000`,

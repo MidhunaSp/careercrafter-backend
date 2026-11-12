@@ -3,7 +3,6 @@ import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { API_SERVER_URL_DEV } from "../../../config"
 import { getResumes, uploadResume } from "../../store/actions/ResumeAction"
-import MultiLine from "../common/MultiLine"
 
 function JobDetailsModal({ job, jobSeekerId, alreadyApplied, onApplied, onClose }) {
 
@@ -18,7 +17,6 @@ function JobDetailsModal({ job, jobSeekerId, alreadyApplied, onApplied, onClose 
     const [errMsg, setErrMsg] = useState("")
     const [successMsg, setSuccessMsg] = useState("")
 
-    // load the saved resumes, they can be reused
     useEffect(() => {
         const loadResumes = async () => {
             try {
@@ -31,7 +29,6 @@ function JobDetailsModal({ job, jobSeekerId, alreadyApplied, onApplied, onClose 
         loadResumes()
     }, [jobSeekerId, dispatch])
 
-    // until the user chooses, the default resume is selected or new resume if there is no resume
     const defaultResume = resumes.find(r => r.isDefault)
     const choice = chosen !== "" ? chosen : (defaultResume ? String(defaultResume.id) : "new")
 
@@ -109,15 +106,15 @@ function JobDetailsModal({ job, jobSeekerId, alreadyApplied, onApplied, onClose 
                             </div>
 
                             <h6 className="fw-bold">Description</h6>
-                            <p><MultiLine text={job.description} /></p>
+                            <p>{job.description}</p>
 
                             <h6 className="fw-bold">Qualifications</h6>
-                            <p><MultiLine text={job.qualifications} empty="Not mentioned" /></p>
+                            <p>{job.qualifications}</p>
 
                             {job.applicationInstructions && (
                                 <div>
                                     <h6 className="fw-bold">Application Instructions</h6>
-                                    <p><MultiLine text={job.applicationInstructions} /></p>
+                                    <p>{job.applicationInstructions}</p>
                                 </div>
                             )}
 

@@ -26,7 +26,7 @@ function Applicants() {
 
     useEffect(() => {
         const loadJobs = async () => {
-            // step 1: check that the user is logged in and has the right role
+            
             if (!localStorage.getItem('token')) {
                 navigate("/login")
                 return
@@ -46,7 +46,6 @@ function Applicants() {
                 return
             }
 
-            // step 2: load the employer, then the jobs posted by this employer
             try {
                 const empResp = await axios.get(
                     `${API_SERVER_URL_DEV}/api/employer/by-username?username=${localStorage.getItem('username')}`,
@@ -106,7 +105,6 @@ function Applicants() {
         setPage(0)
     }
 
-    // called by the review window after the status is updated
     const onStatusChanged = (newStatus) => {
         setApplications(applications.map(a => a.id === selected.id ? { ...a, status: newStatus } : a))
         setSelected({ ...selected, status: newStatus })

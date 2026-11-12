@@ -1,6 +1,5 @@
 import { createContext, useContext } from "react"
 
-// the provider (components/common/ToastProvider.jsx) gives { success, error, info, warning }
 export const ToastContext = createContext(null)
 
 export const useToast = () => {

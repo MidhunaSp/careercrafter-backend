@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router"
 import { useDispatch, useSelector } from "react-redux"
 import { API_SERVER_URL_DEV } from "../../../config"
-import { getInitials, getProfileStrength, splitSkills } from "../../utils/profile"
+import { getInitials, splitSkills } from "../../utils/profile"
 import { getResumes } from "../../store/actions/ResumeAction"
 import AppNavbar from "../common/AppNavbar"
 import ResumeManager from "./ResumeManager"
@@ -45,7 +45,7 @@ function JobSeekerProfile() {
                 return
             }
 
-            // step 2: load the job seeker and the resumes (needed for the profile strength)
+            // step 2: load the job seeker and the resumes
             try {
                 const jsResp = await axios.get(
                     `${API_SERVER_URL_DEV}/api/jobseeker/by-username?username=${localStorage.getItem('username')}`,
@@ -94,9 +94,6 @@ function JobSeekerProfile() {
         }
     }
 
-    const strength = jobSeeker ? getProfileStrength(jobSeeker, resumes.length) : null
-    const barColor = strength && strength.percent === 100 ? 'bg-success' : 'bg-primary'
-
     return (
         <div className="bg-body-tertiary min-vh-100">
 
@@ -113,7 +110,7 @@ function JobSeekerProfile() {
 
                         {/* Left: how the employers see the profile */}
                         <div className="col-lg-4">
-                            <div className="card border-0 shadow-sm mb-4">
+                            <div className="card border-0 shadow-sm">
                                 <div className="card-body p-4 text-center">
                                     <div className="rounded-circle bg-primary text-white fw-bold fs-1 d-inline-block px-4 py-3 mb-3">
                                         {getInitials(jobSeeker.fullName)}
@@ -130,31 +127,6 @@ function JobSeekerProfile() {
                                             <span key={s} className="badge text-bg-primary-subtle border border-primary-subtle text-primary-emphasis me-1 mb-1">{s}</span>
                                         ))}
                                     </div>
-                                </div>
-                            </div>
-
-                            {/* Profile strength */}
-                            <div className="card border-0 shadow-sm">
-                                <div className="card-header bg-white fw-semibold d-flex justify-content-between">
-                                    <span>Profile strength</span>
-                                    <span>{strength.percent}%</span>
-                                </div>
-                                <div className="card-body">
-                                    <div className="progress mb-3" role="progressbar" aria-label="Profile strength">
-                                        <div className={`progress-bar ${barColor}`} style={{ width: `${strength.percent}%` }}></div>
-                                    </div>
-                                    <ul className="list-unstyled mb-2">
-                                        {
-                                            strength.checks.map(c => (
-                                                <li key={c.label} className={c.done ? 'text-success' : 'text-muted'}>
-                                                    <i className={`bi ${c.done ? 'bi-check-circle-fill' : 'bi-circle'} me-2`}></i>{c.label}
-                                                </li>
-                                            ))
-                                        }
-                                    </ul>
-                                    <small className="text-muted">
-                                        A complete profile and a resume help employers find you and improve your job recommendations.
-                                    </small>
                                 </div>
                             </div>
                         </div>

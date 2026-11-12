@@ -6,7 +6,6 @@ import CandidateProfile from "../common/CandidateProfile"
 import ResumeViewer from "../common/ResumeViewer"
 import ChatBox from "../common/ChatBox"
 
-// window opened by the employer to review one application:
 function ApplicationReview({ application, employerUserId, onStatusChanged, onClose }) {
 
     const [tab, setTab] = useState("profile")
@@ -22,8 +21,6 @@ function ApplicationReview({ application, employerUserId, onStatusChanged, onClo
 
     const timelineUrl = `${API_SERVER_URL_DEV}/api/applicationStatusHistory/${application.id}`
 
-    // load the candidate profile, the resume details and the status timeline.
-    // each request is separate, so one failing does not stop the others
     useEffect(() => {
         const headers = { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
         let cancelled = false
@@ -62,7 +59,6 @@ function ApplicationReview({ application, employerUserId, onStatusChanged, onClo
             setSuccessMsg("Status updated to " + statusLabel(newStatus))
             setNote("")
 
-            // load the timeline again so the new entry shows up
             const timelineResp = await axios.get(timelineUrl,
                 {
                     headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }

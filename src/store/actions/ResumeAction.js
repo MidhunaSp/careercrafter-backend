@@ -16,7 +16,6 @@ export const getResumes = (jobSeekerId) => async (dispatch) => {
     })
 }
 
-// uploads the pdf, then loads the list again. returns the id of the new resume
 export const uploadResume = (jobSeekerId, file, label) => async (dispatch) => {
     const formData = new FormData()
     formData.append("file", file)
@@ -38,7 +37,6 @@ export const updateResume = (id, jobSeekerId, dto) => async (dispatch) => {
     await dispatch(getResumes(jobSeekerId))
 }
 
-// the default resume changes for all the resumes, so load the list again
 export const makeDefaultResume = (id, jobSeekerId) => async (dispatch) => {
     await axios.put(`${API_SERVER_URL_DEV}/api/resume/${id}/default`, {},
         {
@@ -47,7 +45,6 @@ export const makeDefaultResume = (id, jobSeekerId) => async (dispatch) => {
     await dispatch(getResumes(jobSeekerId))
 }
 
-// a new default can be chosen by the server, so load the list again
 export const deleteResume = (id, jobSeekerId) => async (dispatch) => {
     await axios.delete(`${API_SERVER_URL_DEV}/api/resume/${id}`,
         {
@@ -63,3 +60,4 @@ export const shareResume = (id, shared, jobSeekerId) => async (dispatch) => {
         })
     await dispatch(getResumes(jobSeekerId))
 }
+

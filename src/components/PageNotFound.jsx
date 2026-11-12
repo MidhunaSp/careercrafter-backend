@@ -2,7 +2,6 @@ import { useEffect } from "react"
 import { Link } from "react-router"
 
 function PageNotFound() {
-    // clear the saved token and username when someone lands on this page
     useEffect(() => {
         localStorage.clear()
     }, [])
@@ -18,9 +17,6 @@ function PageNotFound() {
                     </p>
                     <Link to="/login" className="btn btn-dark me-2">
                         <i className="bi bi-box-arrow-in-right me-1"></i>Login
-                    </Link>
-                    <Link to="/" className="btn btn-outline-dark">
-                        <i className="bi bi-house me-1"></i>Home
                     </Link>
                 </div>
             </div>

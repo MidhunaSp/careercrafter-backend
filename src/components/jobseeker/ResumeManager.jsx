@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import {getResumes, uploadResume, updateResume, makeDefaultResume, deleteResume, shareResume} from "../../store/actions/ResumeAction"
+import { getResumes, uploadResume, updateResume, makeDefaultResume, deleteResume, shareResume } from "../../store/actions/ResumeAction"
 import ResumeViewer from "../common/ResumeViewer"
 
-// Resume module of the job seeker (redux): upload, view, rename, make default, delete
 function ResumeManager({ jobSeekerId }) {
 
     const dispatch = useDispatch()
@@ -39,10 +38,6 @@ function ResumeManager({ jobSeekerId }) {
             return
         }
         setFile(chosen)
-        // suggest the file name as the label
-        if (chosen && label === "") {
-            setLabel(chosen.name.replace(/\.pdf$/i, "").slice(0, 150))
-        }
     }
 
     const resetForm = () => {
@@ -57,9 +52,13 @@ function ResumeManager({ jobSeekerId }) {
         setErrMsg("")
         setSuccessMsg("")
 
+        if (label.trim() === "") {
+            setErrMsg("Please enter a label for your resume")
+            return
+        }
+
         try {
             if (editId) {
-                // editing changes only the label, the uploaded file stays the same
                 const old = resumes.find(r => r.id === editId)
                 await dispatch(updateResume(editId, jobSeekerId, {
                     label: label,

@@ -3,7 +3,6 @@ import { Bar } from 'react-chartjs-2'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend)
 
-// bars go from left to right, one row per label
 function HorizontalBarChart({ labels, values, colors, label = 'Count' }) {
 
     const data = {

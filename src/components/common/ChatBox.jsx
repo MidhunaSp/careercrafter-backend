@@ -2,9 +2,6 @@ import axios from "axios"
 import { useEffect, useState } from "react"
 import { API_SERVER_URL_DEV } from "../../../config"
 
-// chat between the logged-in user (senderId) and another user (receiverId)
-// Used by the employer (message candidate) and the job seeker (message employer)
-
 function ChatBox({ senderId, receiverId, jobApplicationId }) {
 
     const [messages, setMessages] = useState([])
@@ -13,7 +10,6 @@ function ChatBox({ senderId, receiverId, jobApplicationId }) {
 
     const conversationUrl = `${API_SERVER_URL_DEV}/api/message/conversation?user1=${senderId}&user2=${receiverId}`
 
-    // load the earlier messages, the messages received become read
     useEffect(() => {
         const loadMessages = async () => {
             try {
@@ -54,7 +50,6 @@ function ChatBox({ senderId, receiverId, jobApplicationId }) {
                 })
             setContent("")
 
-            // load the chat again so the new message shows up
             const response = await axios.get(conversationUrl,
                 {
                     headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }

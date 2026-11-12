@@ -13,7 +13,6 @@ export const getInitials = (name) => {
     return name.trim().split(/\s+/).slice(0, 2).map(w => w[0].toUpperCase()).join("")
 }
 
-// how complete the job seeker profile is (profile fields + at least one resume)
 export const getProfileStrength = (jobSeeker, resumeCount) => {
     const checks = [
         { label: "Full name", done: !!jobSeeker.fullName },

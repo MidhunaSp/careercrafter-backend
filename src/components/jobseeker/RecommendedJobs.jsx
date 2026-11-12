@@ -7,13 +7,12 @@ import JobDetailsModal from "./JobDetailsModal"
 import { splitSkills } from "../../utils/profile"
 
 
-// the backend can answer with [{job, score, matchedSkills, locationMatch}] or with plain jobs, handle both
 const normalize = (data, js) => {
     const list = Array.isArray(data) ? data : (data && Array.isArray(data.content) ? data.content : [])
     const items = list.map(item => item.job
         ? { job: item.job, score: Number(item.score) || 0, matchedSkills: item.matchedSkills || [], locationMatch: !!item.locationMatch }
         : { job: item, score: 0, matchedSkills: [], locationMatch: false })
-    // the backend score is a small count, so the percentage is the matched skills out of all skills in the profile
+
     const total = splitSkills(js.skills).length
     return items.map(i => ({
         ...i,
@@ -21,7 +20,7 @@ const normalize = (data, js) => {
     }))
 }
 
-// used when the backend gives no recommendations: score the open jobs with the skills and location in the profile
+// used when the backend gives no recommendations
 const scoreJobs = (jobs, js, industry, type) => {
     const skills = splitSkills(js.skills)
     const place = (js.location || "").trim().toLowerCase()
@@ -84,7 +83,7 @@ function RecommendedJobs() {
     const [selectedJob, setSelectedJob] = useState(null)
     const [loaded, setLoaded] = useState(false)
     const [errMsg, setErrMsg] = useState("")
-    // preferences are only used while searching, they are kept in the browser and not saved in the database
+
     const [industry, setIndustry] = useState(localStorage.getItem('prefIndustry') || "")
     const [type, setType] = useState(localStorage.getItem('prefType') || "")
 
@@ -108,11 +107,12 @@ function RecommendedJobs() {
                 return
             }
 
-            // step 2: job seeker, recommended jobs, saved jobs and applications
             try {
                 const jsResp = await axios.get(
                     `${API_SERVER_URL_DEV}/api/jobseeker/by-username?username=${localStorage.getItem('username')}`,
-                    { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+                    {
+                        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                    })
                 const js = jsResp.data
                 setJobSeeker(js)
 
@@ -121,12 +121,16 @@ function RecommendedJobs() {
 
                 const savedResp = await axios.get(
                     `${API_SERVER_URL_DEV}/api/savedJob/jobseeker/${js.id}?page=0&size=1000`,
-                    { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+                    {
+                        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                    })
                 setSavedJobs(savedResp.data.content)
 
                 const appResp = await axios.get(
                     `${API_SERVER_URL_DEV}/api/jobApplication/applicant/${js.id}?page=0&size=1000`,
-                    { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+                    {
+                        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                    })
                 setApplications(appResp.data.content)
 
                 setLoaded(true)
@@ -172,15 +176,21 @@ function RecommendedJobs() {
         try {
             if (saved) {
                 await axios.delete(`${API_SERVER_URL_DEV}/api/savedJob/${saved.id}`,
-                    { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+                    {
+                        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                    })
             }
             else {
                 await axios.post(`${API_SERVER_URL_DEV}/api/savedJob/add/${jobSeeker.id}/${job.id}`, {},
-                    { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+                    {
+                        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                    })
             }
             const savedResp = await axios.get(
                 `${API_SERVER_URL_DEV}/api/savedJob/jobseeker/${jobSeeker.id}?page=0&size=1000`,
-                { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+                {
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                })
             setSavedJobs(savedResp.data.content)
         }
         catch (err) {
@@ -192,7 +202,9 @@ function RecommendedJobs() {
     const onApplied = async () => {
         const appResp = await axios.get(
             `${API_SERVER_URL_DEV}/api/jobApplication/applicant/${jobSeeker.id}?page=0&size=1000`,
-            { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+            {
+                headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+            })
         setApplications(appResp.data.content)
     }
 

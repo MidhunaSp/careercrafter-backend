@@ -28,7 +28,6 @@ function EmployerDashboard() {
     const [refresh, setRefresh] = useState(0)
     const [editJob, setEditJob] = useState(null)
 
-    // loads the employer, the stats and all the jobs of this employer
     useEffect(() => {
         const loadDashboard = async () => {
             // step 1: check that the user is logged in and has the right role
@@ -51,7 +50,6 @@ function EmployerDashboard() {
                 return
             }
 
-            // step 2: employer details, stats for the widgets / charts and the jobs
             try {
                 const empResp = await axios.get(
                     `${API_SERVER_URL_DEV}/api/employer/by-username?username=${localStorage.getItem('username')}`,
@@ -101,7 +99,7 @@ function EmployerDashboard() {
                     {
                         headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
                     })
-                // the last job of the last page was deleted -> go to the previous page
+
                 if (response.data.content.length === 0 && page > 0) {
                     setPage(Math.max(response.data.paginationInfo.totalPages - 1, 0))
                     return
@@ -159,7 +157,6 @@ function EmployerDashboard() {
         }
     }
 
-    // widget values
     const countOf = (status) => {
         const found = statusStats.find(s => s.status === status)
         return found ? found.count : 0

@@ -36,7 +36,7 @@ const profileUrls = {
 
 function AppNavbar({ role }) {
     const navigate = useNavigate()
-    const dispatch = useDispatch() 
+    const dispatch = useDispatch()
     const rolePath = role === 'JOB_SEEKER' ? 'jobseeker' : role.toLowerCase()
 
     const [unread, setUnread] = useState({ notifications: 0, messages: 0 })
@@ -49,17 +49,23 @@ function AppNavbar({ role }) {
             try {
                 const profile = await axios.get(
                     API_SERVER_URL_DEV + profileUrls[role] + localStorage.getItem('username'),
-                    { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+                    {
+                        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                    })
                 const userId = profile.data.userId
 
                 const notificationResp = await axios.get(
                     `${API_SERVER_URL_DEV}/api/notification/user/${userId}`,
-                    { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+                    {
+                        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                    })
                 let messageCount = 0
                 if (role === 'JOB_SEEKER') {
                     const inboxResp = await axios.get(
                         `${API_SERVER_URL_DEV}/api/message/inbox/${userId}`,
-                        { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+                        {
+                            headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                        })
                     messageCount = inboxResp.data.filter(m => !m.isRead).length
                 }
                 setUnread({
@@ -77,9 +83,9 @@ function AppNavbar({ role }) {
     }, [role])
 
     const logout = () => {
-        dispatch({ type: CLEAR_RESUMES }) 
+        dispatch({ type: CLEAR_RESUMES })
         localStorage.clear()
-        navigate("/")
+        navigate("/login")
     }
 
     return (

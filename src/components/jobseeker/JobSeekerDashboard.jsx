@@ -20,7 +20,6 @@ function JobSeekerDashboard() {
     const navigate = useNavigate()
     const dispatch = useDispatch()
 
-    // resumes come from the redux Resume module
     const resumes = useSelector(state => state.resumes)
 
     const [jobSeeker, setJobSeeker] = useState(null)
@@ -53,7 +52,6 @@ function JobSeekerDashboard() {
                 return
             }
 
-            // step 2: job seeker details, applications, saved jobs and resumes
             try {
                 const jsResp = await axios.get(
                     `${API_SERVER_URL_DEV}/api/jobseeker/by-username?username=${localStorage.getItem('username')}`,
@@ -68,7 +66,7 @@ function JobSeekerDashboard() {
                     {
                         headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
                     })
-                // all the applications are used only for the widgets and the charts, the table loads one page at a time
+
                 setApplications(appResp.data.content)
 
                 const savedResp = await axios.get(
@@ -96,7 +94,9 @@ function JobSeekerDashboard() {
             try {
                 const response = await axios.get(
                     `${API_SERVER_URL_DEV}/api/jobApplication/applicant/${jobSeekerId}?page=${page}&size=${size}`,
-                    { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+                    {
+                        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                    })
 
                 if (response.data.content.length === 0 && page > 0) {
                     setPage(Math.max(response.data.paginationInfo.totalPages - 1, 0))
@@ -132,7 +132,6 @@ function JobSeekerDashboard() {
         }
     }
 
-    // widget values
     const countOf = (status) => applications.filter(a => a.status === status).length
     const inProgress = countOf('APPLIED') + countOf('UNDER_REVIEW')
 

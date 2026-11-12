@@ -1,5 +1,4 @@
-import { Route, Routes } from "react-router"
-import Home from "./components/Home"
+import { Navigate, Route, Routes } from "react-router"
 import Login from "./components/auth/Login"
 import Signup from "./components/auth/Signup"
 import PageNotFound from "./components/PageNotFound"
@@ -22,7 +21,7 @@ import JobSeekerMessages from "./components/jobseeker/JobSeekerMessages"
 function App() {
   return (
     <Routes>
-      <Route path="" element={<Home />} />
+      <Route path="" element={<Navigate to="/login" replace />} />
       <Route path="login" element={<Login />} />
       <Route path="signup" element={<Signup />} />
 

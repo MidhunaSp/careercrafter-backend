@@ -9,7 +9,6 @@ const profileUrls = {
     EMPLOYER: '/api/employer/by-username?username='
 }
 
-// icon for each notification type
 const typeIcons = {
     APPLICATION_STATUS_CHANGE: 'bi-arrow-repeat',
     NEW_JOB_MATCH: 'bi-stars',
@@ -27,7 +26,6 @@ function Notifications({ role }) {
 
     useEffect(() => {
         const loadNotifications = async () => {
-            // step 1: check that the user is logged in and has the right role
             if (!localStorage.getItem('token')) {
                 navigate("/login")
                 return
@@ -47,7 +45,6 @@ function Notifications({ role }) {
                 return
             }
 
-            // step 2: the notification api needs the user id, so load the profile first
             try {
                 const profile = await axios.get(
                     API_SERVER_URL_DEV + profileUrls[role] + localStorage.getItem('username'),

@@ -15,6 +15,7 @@ const emptyForm = {
 }
 
 function AddJob({ employerId, job, onJobAdded }) {
+
     const [form, setForm] = useState(job ? {
         title: job.title,
         description: job.description,
@@ -26,6 +27,7 @@ function AddJob({ employerId, job, onJobAdded }) {
         maxSalary: job.maxSalary ?? "",
         applicationInstructions: job.applicationInstructions || ""
     } : emptyForm)
+    
     const [errMsg, setErrMsg] = useState("")
     const [successMsg, setSuccessMsg] = useState("")
     const [jdFile, setJdFile] = useState(null)

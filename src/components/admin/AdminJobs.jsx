@@ -17,9 +17,6 @@ function AdminJobs() {
     const [paginationInfo, setPaginationInfo] = useState({ totalPages: 0, totalRecords: 0, numRecordsInPage: 0 })
     const [refresh, setRefresh] = useState(0)
 
-    // the login / role check and the navbar are handled once by AdminLayout
-
-    // runs when the search text or the page changes: load the active jobs
     useEffect(() => {
         const getJobs = async () => {
             let url = `${API_SERVER_URL_DEV}/api/job/filter/v1?page=${page}&size=${size}`
@@ -28,8 +25,11 @@ function AdminJobs() {
             }
             try {
                 const response = await axios.get(url,
-                    { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
-                // the last job of the last page was closed -> go to the previous page
+                    {
+                        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                    })
+
+
                 if (response.data.content.length === 0 && page > 0) {
                     setPage(Math.max(response.data.paginationInfo.totalPages - 1, 0))
                     return
@@ -42,17 +42,17 @@ function AdminJobs() {
             }
         }
         getJobs()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [keyword, page, refresh])
 
-    // moderation: the admin can close a job listing, the employer gets a notification
     const closeJob = async (job) => {
         if (!window.confirm(`Close the job "${job.title}"? The employer will be notified.`)) {
             return
         }
         try {
             await axios.put(`${API_SERVER_URL_DEV}/api/admin/job/${job.id}/close`, {},
-                { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+                {
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                })
             toast.success(`Job "${job.title}" closed`)
             setRefresh(refresh + 1)
         }

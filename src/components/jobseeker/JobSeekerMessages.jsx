@@ -40,15 +40,20 @@ function JobSeekerMessages() {
             try {
                 const jsResp = await axios.get(
                     `${API_SERVER_URL_DEV}/api/jobseeker/by-username?username=${localStorage.getItem('username')}`,
-                    { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+                    {
+                        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                    })
                 const js = jsResp.data
                 setUserId(js.userId)
 
-                // group the inbox and the sent messages by the other person
                 const inbox = await axios.get(`${API_SERVER_URL_DEV}/api/message/inbox/${js.userId}`,
-                    { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+                    {
+                        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                    })
                 const sent = await axios.get(`${API_SERVER_URL_DEV}/api/message/sent/${js.userId}`,
-                    { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+                    {
+                        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                    })
 
                 const map = {}
                 const all = [...inbox.data, ...sent.data]
@@ -79,7 +84,6 @@ function JobSeekerMessages() {
         loadPage()
     }, [navigate])
 
-    // opening a chat marks its messages as read 
     const openChat = (conv) => {
         setSelected(conv)
         setConversations(conversations.map(c => c.otherId === conv.otherId ? { ...c, unread: 0 } : c))

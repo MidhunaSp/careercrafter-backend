@@ -1,7 +1,5 @@
-import MultiLine from "./MultiLine"
 import { getInitials, splitSkills } from "../../utils/profile"
 
-// profile of a job seeker as the employer sees it
 function CandidateProfile({ profile }) {
     const skills = splitSkills(profile.skills)
 
@@ -23,10 +21,10 @@ function CandidateProfile({ profile }) {
             </ul>
 
             <h6 className="fw-bold"><i className="bi bi-mortarboard me-1"></i>Education</h6>
-            <p className="text-secondary text-break"><MultiLine text={profile.education} /></p>
+            <p className="text-secondary text-break">{profile.education}</p>
 
             <h6 className="fw-bold"><i className="bi bi-briefcase me-1"></i>Experience</h6>
-            <p className="text-secondary text-break"><MultiLine text={profile.experience} /></p>
+            <p className="text-secondary text-break">{profile.experience}</p>
 
             <h6 className="fw-bold"><i className="bi bi-tools me-1"></i>Skills</h6>
             <div>

@@ -41,17 +41,20 @@ function SavedJob() {
                 return
             }
 
-            // step 2: job seeker and applications (to block a second apply), the saved jobs load page by page below
             try {
                 const jsResp = await axios.get(
                     `${API_SERVER_URL_DEV}/api/jobseeker/by-username?username=${localStorage.getItem('username')}`,
-                    { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+                    {
+                        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                    })
                 const js = jsResp.data
                 setJobSeeker(js)
 
                 const appResp = await axios.get(
                     `${API_SERVER_URL_DEV}/api/jobApplication/applicant/${js.id}?page=0&size=1000`,
-                    { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+                    {
+                        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                    })
                 setApplications(appResp.data.content)
             }
             catch {
@@ -61,7 +64,6 @@ function SavedJob() {
         loadPage()
     }, [navigate])
 
-    // runs when the job seeker, the page or refresh changes: load only one page of saved jobs from the backend
     const jobSeekerId = jobSeeker ? jobSeeker.id : null
     useEffect(() => {
         if (jobSeekerId === null) {
@@ -71,8 +73,10 @@ function SavedJob() {
             try {
                 const response = await axios.get(
                     `${API_SERVER_URL_DEV}/api/savedJob/jobseeker/${jobSeekerId}?page=${page}&size=${size}`,
-                    { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
-                // the last saved job of the last page was removed -> go to the previous page
+                    {
+                        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                    })
+
                 if (response.data.content.length === 0 && page > 0) {
                     setPage(Math.max(response.data.paginationInfo.totalPages - 1, 0))
                     return
@@ -87,12 +91,13 @@ function SavedJob() {
         getSavedJobs()
     }, [jobSeekerId, page, refresh])
 
-    // the saved job has only a few fields, so fetch the full job before opening it
     const openJob = async (jobId) => {
         setErrMsg("")
         try {
-            const response = await axios.get(`${API_SERVER_URL_DEV}/api/job/v1/${jobId}`,
-                { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+            const response = await axios.get(`${API_SERVER_URL_DEV}/api/job/v2/${jobId}`,
+                {
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                })
             setSelectedJob(response.data)
         }
         catch (err) {
@@ -105,8 +110,10 @@ function SavedJob() {
         setErrMsg("")
         try {
             await axios.delete(`${API_SERVER_URL_DEV}/api/savedJob/${id}`,
-                { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
-            // load the page again from the backend
+                {
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                })
+
             setRefresh(refresh + 1)
         }
         catch (err) {
@@ -118,7 +125,9 @@ function SavedJob() {
     const onApplied = async () => {
         const appResp = await axios.get(
             `${API_SERVER_URL_DEV}/api/jobApplication/applicant/${jobSeeker.id}?page=0&size=1000`,
-            { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+            {
+                headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+            })
         setApplications(appResp.data.content)
     }
 

@@ -1,14 +1,14 @@
 import axios from "axios"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router"
-import { API_SERVER_URL_DEV, PAGE_SIZE } from "../../../config"
+import { API_SERVER_URL_DEV } from "../../../config"
 import { splitSkills } from "../../utils/profile"
 import AppNavbar from "../common/AppNavbar"
 import Pagination from "../common/Pagination"
 import CandidateProfile from "../common/CandidateProfile"
 import ResumeViewer from "../common/ResumeViewer"
 
-const size = PAGE_SIZE
+const size = 3
 
 function CandidateSearch() {
 
@@ -111,7 +111,6 @@ function CandidateSearch() {
         }
         loadShared()
 
-        // ignore the response if the modal is closed or another candidate is opened
         return () => {
             cancelled = true
         }

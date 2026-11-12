@@ -1,0 +1,26 @@
+.bg-pink {
+    background-color: #FFD1DC;
+}
+
+.img-multiply {
+    mix-blend-mode: multiply;
+}
+
+.company-logo {
+    width: 56px;
+    height: 56px;
+}
+
+.label-small {
+    font-size: 0.7rem;
+}
+
+.profile-bar {
+    width: 100%;
+    height: 1rem;
+    accent-color: #0d6efd;
+}
+
+.profile-bar-done {
+    accent-color: #198754;
+}
